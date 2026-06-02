@@ -1,0 +1,227 @@
+{
+  "version": "0.2",
+  "forests": [
+    {
+      "id": "forest-stos-internal",
+      "name": "StoS Internal",
+      "description": "StoS内の実践知をSeedからSystemへ育てる内部検証用Forest。",
+      "ownerLabel": "StoS",
+      "visibility": "private",
+      "createdAt": "2026-06-02T00:00:00.000Z",
+      "updatedAt": "2026-06-02T00:00:00.000Z"
+    },
+    {
+      "id": "forest-craft-operations",
+      "name": "Craft Operations",
+      "description": "Eats&CafeBar Craftの店舗運営改善を扱う検証用Forest。",
+      "ownerLabel": "Craft",
+      "visibility": "private",
+      "createdAt": "2026-06-02T00:00:00.000Z",
+      "updatedAt": "2026-06-02T00:00:00.000Z"
+    },
+    {
+      "id": "forest-student-oem",
+      "name": "学生OEM",
+      "description": "自律的に働ける社会人育成のための知識蓄積Forest。",
+      "ownerLabel": "StoS / Craft",
+      "visibility": "private",
+      "createdAt": "2026-06-02T00:00:00.000Z",
+      "updatedAt": "2026-06-02T00:00:00.000Z"
+    }
+  ],
+  "trees": [
+    {
+      "id": "tree-reporting-habit",
+      "forestId": "forest-student-oem",
+      "title": "報連相の定着",
+      "summary": "学生メンバーが自然に報連相できる構造を作る。",
+      "tags": [
+        "報連相",
+        "LowPhase",
+        "学生OEM"
+      ],
+      "status": "system-candidate",
+      "createdAt": "2026-06-02T00:00:00.000Z",
+      "updatedAt": "2026-06-02T00:00:00.000Z"
+    },
+    {
+      "id": "tree-craft-sales-input",
+      "forestId": "forest-craft-operations",
+      "title": "日次売上入力の習慣化",
+      "summary": "ワンオペ店舗でも続けられる売上・経費入力の仕組み。",
+      "tags": [
+        "経理",
+        "習慣化",
+        "Craft"
+      ],
+      "status": "integrated",
+      "createdAt": "2026-06-02T00:00:00.000Z",
+      "updatedAt": "2026-06-02T00:00:00.000Z"
+    },
+    {
+      "id": "tree-high-phase-check",
+      "forestId": "forest-stos-internal",
+      "title": "HighPhaseチェックリスト活用",
+      "summary": "企画評価にHighPhaseチェックリストを使う。",
+      "tags": [
+        "HighPhase",
+        "System",
+        "企画評価"
+      ],
+      "status": "systemized",
+      "createdAt": "2026-06-02T00:00:00.000Z",
+      "updatedAt": "2026-06-02T00:00:00.000Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "node-report-seed",
+      "forestId": "forest-student-oem",
+      "treeId": "tree-reporting-habit",
+      "parentId": null,
+      "phase": "Seed",
+      "title": "報告のタイミングが人によって違う",
+      "body": "作業後すぐ報告する人と、まとめて後で報告する人がいる。抜け漏れが発生しやすい。",
+      "tags": [
+        "報連相",
+        "観察"
+      ],
+      "author": "sample-user",
+      "sourceContext": "学生OEMミーティング",
+      "visibility": "team",
+      "createdAt": "2026-06-02T00:00:00.000Z",
+      "updatedAt": "2026-06-02T00:00:00.000Z"
+    },
+    {
+      "id": "node-report-branch",
+      "forestId": "forest-student-oem",
+      "treeId": "tree-reporting-habit",
+      "parentId": "node-report-seed",
+      "phase": "Branch",
+      "title": "作業完了時の3行報告テンプレートを作る",
+      "body": "完了内容、困ったこと、次にやることの3点だけを送る形にする。",
+      "tags": [
+        "テンプレート",
+        "改善案"
+      ],
+      "author": "sample-user",
+      "sourceContext": "改善案",
+      "visibility": "team",
+      "createdAt": "2026-06-02T00:00:00.000Z",
+      "updatedAt": "2026-06-02T00:00:00.000Z"
+    },
+    {
+      "id": "node-report-trial",
+      "forestId": "forest-student-oem",
+      "treeId": "tree-reporting-habit",
+      "parentId": "node-report-branch",
+      "phase": "Trial",
+      "title": "1週間テンプレートで運用した",
+      "body": "報告の量は増えたが、文章が長くなる人もいた。入力例が必要。",
+      "tags": [
+        "実践",
+        "検証"
+      ],
+      "author": "sample-user",
+      "sourceContext": "週次レトロ",
+      "visibility": "team",
+      "createdAt": "2026-06-02T00:00:00.000Z",
+      "updatedAt": "2026-06-02T00:00:00.000Z"
+    },
+    {
+      "id": "node-report-sigma",
+      "forestId": "forest-student-oem",
+      "treeId": "tree-reporting-habit",
+      "parentId": "node-report-trial",
+      "phase": "Sigma",
+      "title": "報連相は短さよりも次の行動が見えることが重要",
+      "body": "報告の目的は文章量ではなく、次に誰が何を判断できるかである。テンプレートには判断材料を含める。",
+      "tags": [
+        "Sigma",
+        "統合"
+      ],
+      "author": "sample-user",
+      "sourceContext": "統合メモ",
+      "visibility": "team",
+      "createdAt": "2026-06-02T00:00:00.000Z",
+      "updatedAt": "2026-06-02T00:00:00.000Z"
+    },
+    {
+      "id": "node-sales-seed",
+      "forestId": "forest-craft-operations",
+      "treeId": "tree-craft-sales-input",
+      "parentId": null,
+      "phase": "Seed",
+      "title": "家計簿的な入力は続きにくい",
+      "body": "細かい家計簿形式ではなく、店舗運営に必要な粒度で入力した方が続きやすい。",
+      "tags": [
+        "経理",
+        "習慣化"
+      ],
+      "author": "sample-user",
+      "sourceContext": "Craft運用",
+      "visibility": "private",
+      "createdAt": "2026-06-02T00:00:00.000Z",
+      "updatedAt": "2026-06-02T00:00:00.000Z"
+    },
+    {
+      "id": "node-sales-sigma",
+      "forestId": "forest-craft-operations",
+      "treeId": "tree-craft-sales-input",
+      "parentId": "node-sales-seed",
+      "phase": "Sigma",
+      "title": "入力負荷を下げることが継続率を上げる",
+      "body": "毎日完璧に記録するよりも、見るべき数字に絞って継続できる構造にする。",
+      "tags": [
+        "Sigma",
+        "運用設計"
+      ],
+      "author": "sample-user",
+      "sourceContext": "経理アプリ改善",
+      "visibility": "private",
+      "createdAt": "2026-06-02T00:00:00.000Z",
+      "updatedAt": "2026-06-02T00:00:00.000Z"
+    },
+    {
+      "id": "node-high-system",
+      "forestId": "forest-stos-internal",
+      "treeId": "tree-high-phase-check",
+      "parentId": null,
+      "phase": "System",
+      "title": "HighPhaseチェックリストを企画評価に使う",
+      "body": "社会性、成果、制度化、社会的リーダーシップの観点から企画を確認する。",
+      "tags": [
+        "HighPhase",
+        "チェックリスト",
+        "System"
+      ],
+      "author": "sample-user",
+      "sourceContext": "StoS資料",
+      "visibility": "private",
+      "createdAt": "2026-06-02T00:00:00.000Z",
+      "updatedAt": "2026-06-02T00:00:00.000Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notification-001",
+      "type": "system-candidate",
+      "title": "System化候補があります",
+      "body": "報連相の定着TreeはSigmaとTrialがあるため、System化候補です。",
+      "relatedTreeId": "tree-reporting-habit",
+      "relatedNodeId": "node-report-sigma",
+      "read": false,
+      "createdAt": "2026-06-02T00:00:00.000Z"
+    },
+    {
+      "id": "notification-002",
+      "type": "update",
+      "title": "Craft Operationsが更新されました",
+      "body": "日次売上入力の習慣化TreeにSigmaが追加されています。",
+      "relatedTreeId": "tree-craft-sales-input",
+      "relatedNodeId": "node-sales-sigma",
+      "read": false,
+      "createdAt": "2026-06-02T00:00:00.000Z"
+    }
+  ]
+}

@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import type React from "react";
-import { Flag, Search, Trees } from "lucide-react";
+import { ArrowRight, Flag, Search, Trees } from "lucide-react";
 import { DashboardCards } from "@/components/DashboardCards";
 import { KnowledgeFlow } from "@/components/KnowledgeFlow";
 import { TreeCard } from "@/components/TreeCard";
-import { useKnowledgeForestData, useMetrics } from "@/lib/v02-store";
+import { phaseLabels, useKnowledgeForestData, useMetrics } from "@/lib/v02-store";
 
 export default function DashboardPage() {
   const { data } = useKnowledgeForestData();
@@ -22,21 +22,21 @@ export default function DashboardPage() {
               Knowledge Growth Viewer
             </p>
             <h2 className="text-3xl font-bold tracking-normal text-forest-ink sm:text-4xl">
-              Forestごとに、気づきが仕組みへ育つ過程を見る。
+              ForestからTreeを育て、気づきを運用知へつなげる。
             </h2>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-              v0.2では投稿一覧ではなく、Forest、Tree、Nodeの関係を中心に表示します。
-              Sigmaへの到達とSystem化の準備が進んだTreeを見つけ、知識を再利用できる形へ近づけます。
+              v0.2.3では、Forest作成、TreeとSeedの同時作成、Dashboardからの検索導線を強化しました。
+              System化は人の評価ではなく、再利用可能な運用知への到達として扱います。
             </p>
           </div>
           <KnowledgeFlow />
         </div>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link className="flex items-center gap-2 rounded-lg bg-forest-ink px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-700" href="/forests">
+          <Link className="flex items-center gap-2 rounded-lg bg-forest-ink px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-700 active:scale-[0.99]" href="/forests">
             <Trees className="h-4 w-4" />
             Forestを見る
           </Link>
-          <Link className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50" href="/search">
+          <Link className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 active:scale-[0.99]" href="/search">
             <Search className="h-4 w-4" />
             関連Treeを探す
           </Link>
@@ -56,7 +56,7 @@ export default function DashboardPage() {
           {metrics.stalledTrees.map((tree) => (
             <TreeCard key={tree.id} tree={tree} data={data} />
           ))}
-          {metrics.stalledTrees.length === 0 && <Empty text="現在、停滞Treeはありません。" />}
+          {metrics.stalledTrees.length === 0 && <Empty text="現在、次の実践待ちTreeはありません。" />}
         </Panel>
       </section>
 
@@ -67,10 +67,19 @@ export default function DashboardPage() {
         </h2>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {Object.entries(metrics.phaseCounts).map(([phase, count]) => (
-            <div key={phase} className="rounded-lg bg-forest-mist p-4">
-              <p className="text-xs font-bold uppercase text-slate-500">{phase}</p>
+            <Link
+              key={phase}
+              href={`/search?phase=${phase}`}
+              className="group cursor-pointer rounded-lg bg-forest-mist p-4 transition hover:bg-blue-50 active:scale-[0.99]"
+              aria-label={`${phaseLabels[phase as keyof typeof phaseLabels]}のNodeを探す`}
+              title={`${phaseLabels[phase as keyof typeof phaseLabels]}のNodeを探す`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-bold uppercase text-slate-500">{phaseLabels[phase as keyof typeof phaseLabels]}</p>
+                <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-blue-600" />
+              </div>
               <p className="mt-1 text-2xl font-bold text-forest-ink">{count}</p>
-            </div>
+            </Link>
           ))}
         </div>
       </section>

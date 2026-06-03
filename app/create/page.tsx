@@ -1,13 +1,15 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, Suspense, useMemo, useState } from "react";
 import type React from "react";
-import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { ChevronLeft, Plus } from "lucide-react";
 import { PhaseBadge } from "@/components/PhaseBadge";
 import {
+  addForest,
   addNode,
-  addTree,
+  addTreeWithSeed,
   getTreeNodes,
   phaseDescriptions,
   phaseLabels,
@@ -15,7 +17,7 @@ import {
   saveKnowledgeForestData,
   useKnowledgeForestData
 } from "@/lib/v02-store";
-import { Phase } from "@/lib/v02-types";
+import { ForestVisibility, Phase } from "@/lib/v02-types";
 
 const emptyNodeForm = {
   treeId: "",
@@ -26,26 +28,73 @@ const emptyNodeForm = {
   tags: ""
 };
 
+const emptyTreeForm = {
+  forestId: "",
+  title: "",
+  summary: "",
+  tags: "",
+  seedTitle: "",
+  seedBody: ""
+};
+
+const emptyForestForm = {
+  title: "",
+  description: "",
+  ownerLabel: "",
+  tags: "",
+  visibility: "private" as ForestVisibility
+};
+
 export default function CreatePage() {
+  return (
+    <Suspense fallback={<section className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft">Loading create form...</section>}>
+      <CreatePageContent />
+    </Suspense>
+  );
+}
+
+function CreatePageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialForestId = searchParams.get("forestId") ?? "";
   const { data, setData } = useKnowledgeForestData();
-  const [mode, setMode] = useState<"tree" | "node">("node");
-  const [treeForestId, setTreeForestId] = useState("");
-  const [treeTitle, setTreeTitle] = useState("");
-  const [treeSummary, setTreeSummary] = useState("");
+  const [mode, setMode] = useState<"node" | "tree" | "forest">("node");
   const [nodeForm, setNodeForm] = useState(emptyNodeForm);
+  const [treeForm, setTreeForm] = useState({ ...emptyTreeForm, forestId: initialForestId });
+  const [forestForm, setForestForm] = useState(emptyForestForm);
   const selectedTreeId = nodeForm.treeId || data.trees[0]?.id || "";
-  const selectedForestId = treeForestId || data.forests[0]?.id || "";
+  const selectedForestId = treeForm.forestId || initialForestId || data.forests[0]?.id || "";
 
   const selectedTreeNodes = useMemo(
     () => getTreeNodes(data, selectedTreeId),
     [data, selectedTreeId]
   );
 
+  function submitForest(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const result = addForest(data, {
+      title: forestForm.title.trim(),
+      description: forestForm.description.trim(),
+      ownerLabel: forestForm.ownerLabel.trim(),
+      tags: splitTags(forestForm.tags),
+      visibility: forestForm.visibility
+    });
+    saveKnowledgeForestData(result.nextData);
+    setData(result.nextData);
+    router.push(`/forests/${result.forest.id}`);
+  }
+
   function submitTree(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedForestId) return;
-    const result = addTree(data, selectedForestId, treeTitle.trim(), treeSummary.trim());
+    const result = addTreeWithSeed(data, {
+      forestId: selectedForestId,
+      title: treeForm.title.trim(),
+      summary: treeForm.summary.trim(),
+      tags: splitTags(treeForm.tags),
+      seedTitle: treeForm.seedTitle.trim(),
+      seedBody: treeForm.seedBody.trim()
+    });
     saveKnowledgeForestData(result.nextData);
     setData(result.nextData);
     router.push(`/tree/${result.tree.id}`);
@@ -60,10 +109,7 @@ export default function CreatePage() {
       phase: nodeForm.phase,
       title: nodeForm.title.trim(),
       body: nodeForm.body.trim(),
-      tags: nodeForm.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean)
+      tags: splitTags(nodeForm.tags)
     });
     saveKnowledgeForestData(result.nextData);
     setData(result.nextData);
@@ -73,25 +119,66 @@ export default function CreatePage() {
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft sm:p-7">
-      <h2 className="text-2xl font-bold text-forest-ink">Create Tree / Node</h2>
+      <div className="mb-4 flex flex-wrap items-center gap-2 text-sm font-bold text-slate-500">
+        <Link className="inline-flex items-center gap-1 text-blue-700" href="/">
+          <ChevronLeft className="h-4 w-4" />
+          Dashboardへ戻る
+        </Link>
+        <span>/</span>
+        <span>Create</span>
+      </div>
+      <h2 className="text-2xl font-bold text-forest-ink">Create Forest / Tree / Node</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-        新しい内容は投稿単体ではなく、Forestの中のTree、またはTree上のNodeとして追加します。
-        保存後はLocalStorageに即時保存し、対象のTree Viewへ移動します。
+        Forest、Tree、Nodeをこの順に育てます。Tree作成時は最初のSeed Nodeも同時に作るため、作成後すぐTree Viewに成長の起点が表示されます。
       </p>
 
-      <div className="mt-5 grid max-w-md grid-cols-2 gap-2 rounded-lg bg-slate-100 p-1">
+      <div className="mt-5 grid max-w-xl grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1">
         <button className={tabClass(mode === "node")} onClick={() => setMode("node")} type="button">
           Nodeを追加
         </button>
         <button className={tabClass(mode === "tree")} onClick={() => setMode("tree")} type="button">
           Treeを作成
         </button>
+        <button className={tabClass(mode === "forest")} onClick={() => setMode("forest")} type="button">
+          Forestを作成
+        </button>
       </div>
 
-      {mode === "tree" ? (
+      {mode === "forest" && (
+        <form className="mt-6 grid gap-4" onSubmit={submitForest}>
+          <Field label="Forest名">
+            <input className="input" required value={forestForm.title} onChange={(event) => setForestForm({ ...forestForm, title: event.target.value })} />
+          </Field>
+          <Field label="Forest説明">
+            <textarea className="input min-h-28 resize-y" required value={forestForm.description} onChange={(event) => setForestForm({ ...forestForm, description: event.target.value })} />
+          </Field>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="オーナー/用途ラベル">
+              <input className="input" value={forestForm.ownerLabel} onChange={(event) => setForestForm({ ...forestForm, ownerLabel: event.target.value })} placeholder="例：公開デモ / チーム試作" />
+            </Field>
+            <Field label="Visibility">
+              <select className="input" value={forestForm.visibility} onChange={(event) => setForestForm({ ...forestForm, visibility: event.target.value as ForestVisibility })}>
+                <option value="private">private</option>
+                <option value="team">team</option>
+                <option value="organization">organization</option>
+                <option value="public-demo">public-demo</option>
+              </select>
+            </Field>
+          </div>
+          <Field label="タグ（カンマ区切り）">
+            <input className="input" value={forestForm.tags} onChange={(event) => setForestForm({ ...forestForm, tags: event.target.value })} placeholder="例：接客, 実験, 公開デモ" />
+          </Field>
+          <p className="rounded-lg bg-blue-50 p-3 text-sm font-semibold text-blue-800">
+            作成後、このForest詳細へ移動します。そこから続けてTreeを作成できます。
+          </p>
+          <SubmitButton label="Forestを作成" />
+        </form>
+      )}
+
+      {mode === "tree" && (
         <form className="mt-6 grid gap-4" onSubmit={submitTree}>
           <Field label="Forest">
-            <select className="input" value={selectedForestId} onChange={(event) => setTreeForestId(event.target.value)}>
+            <select className="input" value={selectedForestId} onChange={(event) => setTreeForm({ ...treeForm, forestId: event.target.value })}>
               {data.forests.map((forest) => (
                 <option key={forest.id} value={forest.id}>
                   {forest.title}
@@ -100,25 +187,34 @@ export default function CreatePage() {
             </select>
           </Field>
           <Field label="Treeタイトル">
-            <input className="input" required value={treeTitle} onChange={(event) => setTreeTitle(event.target.value)} />
+            <input className="input" required value={treeForm.title} onChange={(event) => setTreeForm({ ...treeForm, title: event.target.value })} />
           </Field>
           <Field label="Treeサマリー">
-            <textarea className="input min-h-28 resize-y" required value={treeSummary} onChange={(event) => setTreeSummary(event.target.value)} />
+            <textarea className="input min-h-24 resize-y" required value={treeForm.summary} onChange={(event) => setTreeForm({ ...treeForm, summary: event.target.value })} />
           </Field>
-          <p className="rounded-lg bg-blue-50 p-3 text-sm font-semibold text-blue-800">
-            作成後、このTreeの成長ビューへ移動します。Forest詳細にも新規Treeとして反映されます。
-          </p>
-          <SubmitButton label="Treeを作成して表示" />
+          <Field label="Treeタグ（カンマ区切り）">
+            <input className="input" value={treeForm.tags} onChange={(event) => setTreeForm({ ...treeForm, tags: event.target.value })} />
+          </Field>
+          <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+            <p className="text-sm font-bold text-blue-900">最初のSeed Node</p>
+            <div className="mt-3 grid gap-4">
+              <Field label="Seedタイトル">
+                <input className="input" required value={treeForm.seedTitle} onChange={(event) => setTreeForm({ ...treeForm, seedTitle: event.target.value })} />
+              </Field>
+              <Field label="Seed本文">
+                <textarea className="input min-h-28 resize-y" required value={treeForm.seedBody} onChange={(event) => setTreeForm({ ...treeForm, seedBody: event.target.value })} />
+              </Field>
+            </div>
+          </div>
+          <SubmitButton label="TreeとSeedを作成して表示" />
         </form>
-      ) : (
+      )}
+
+      {mode === "node" && (
         <form className="mt-6 grid gap-4" onSubmit={submitNode}>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="追加先Tree">
-              <select
-                className="input"
-                value={selectedTreeId}
-                onChange={(event) => setNodeForm({ ...nodeForm, treeId: event.target.value, parentId: "" })}
-              >
+              <select className="input" value={selectedTreeId} onChange={(event) => setNodeForm({ ...nodeForm, treeId: event.target.value, parentId: "" })}>
                 {data.trees.map((tree) => (
                   <option key={tree.id} value={tree.id}>
                     {tree.title}
@@ -127,11 +223,7 @@ export default function CreatePage() {
               </select>
             </Field>
             <Field label="Phase">
-              <select
-                className="input"
-                value={nodeForm.phase}
-                onChange={(event) => setNodeForm({ ...nodeForm, phase: event.target.value as Phase })}
-              >
+              <select className="input" value={nodeForm.phase} onChange={(event) => setNodeForm({ ...nodeForm, phase: event.target.value as Phase })}>
                 {phaseOrder.map((phase) => (
                   <option key={phase} value={phase}>
                     {phaseLabels[phase]} / {phaseDescriptions[phase]}
@@ -164,9 +256,6 @@ export default function CreatePage() {
               <PhaseBadge key={phase} phase={phase} compact />
             ))}
           </div>
-          <p className="rounded-lg bg-blue-50 p-3 text-sm font-semibold text-blue-800">
-            追加後、対象TreeのTree Viewへ移動します。親Nodeを選ぶとReact Flow上でedgeとしてつながります。
-          </p>
           <SubmitButton label="Nodeを追加してTree Viewへ" />
         </form>
       )}
@@ -174,8 +263,15 @@ export default function CreatePage() {
   );
 }
 
+function splitTags(value: string) {
+  return value
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
 function tabClass(active: boolean) {
-  return `rounded-md px-3 py-2 text-sm font-bold transition ${
+  return `rounded-md px-2 py-2 text-xs font-bold transition sm:text-sm ${
     active ? "bg-white text-blue-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
   }`;
 }

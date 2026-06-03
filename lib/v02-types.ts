@@ -1,12 +1,16 @@
 export type Phase = "seed" | "branch" | "trial" | "sigma" | "system";
 
+export type ForestVisibility = "private" | "team" | "organization" | "public-demo";
+
 export type Forest = {
   id: string;
   title: string;
   description: string;
   tags: string[];
   ownerLabel: string;
+  visibility?: ForestVisibility;
   createdAt: string;
+  updatedAt?: string;
 };
 
 export type KnowledgeTree = {
@@ -38,6 +42,9 @@ export type NotificationItem = {
   title: string;
   body: string;
   createdAt: string;
+  relatedTreeId?: string;
+  relatedNodeId?: string;
+  read?: boolean;
 };
 
 export type KnowledgeForestData = {

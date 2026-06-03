@@ -16,7 +16,7 @@ const navItems = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="min-h-screen pb-24 lg:pb-0">
+    <main className="min-h-screen pb-32 lg:pb-0">
       <div className="mx-auto flex w-full max-w-7xl gap-5 px-4 py-4 sm:px-6 lg:px-8">
         <aside className="sticky top-4 hidden h-[calc(100vh-2rem)] w-64 shrink-0 rounded-lg border border-slate-200 bg-white/90 p-4 shadow-soft backdrop-blur lg:block">
           <Brand />
@@ -35,9 +35,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Link
             href="/create"
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-forest-ink px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
+            title="Forest / Tree / Nodeを作成"
+            aria-label="Forest / Tree / Nodeを作成"
           >
             <Plus className="h-4 w-4" />
-            Tree / Nodeを追加
+            Create
           </Link>
           <div className="mt-7">
             <KnowledgeFlow compact />
@@ -47,7 +49,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <section className="min-w-0 flex-1">
           <header className="mb-4 flex items-center justify-between lg:hidden">
             <Brand />
-            <Link className="rounded-lg bg-forest-ink p-3 text-white" href="/create" aria-label="作成">
+            <Link
+              className="rounded-lg bg-forest-ink p-3 text-white"
+              href="/create"
+              aria-label="Forest / Tree / Nodeを作成"
+              title="Forest / Tree / Nodeを作成"
+            >
               <Plus className="h-5 w-5" />
             </Link>
           </header>
@@ -81,7 +88,7 @@ function Brand() {
       </div>
       <div>
         <p className="text-sm font-semibold text-slate-500">Knowledge Forest</p>
-        <h1 className="text-xl font-bold tracking-normal text-forest-ink">MVP v0.2</h1>
+        <h1 className="text-xl font-bold tracking-normal text-forest-ink">MVP v0.2.3</h1>
       </div>
     </Link>
   );

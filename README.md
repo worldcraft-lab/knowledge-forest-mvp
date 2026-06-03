@@ -1,8 +1,8 @@
-# Knowledge Forest MVP v0.2.2
+# Knowledge Forest MVP v0.2.3
 
 Knowledge Forest is a local browser MVP for visualizing how small observations grow into reusable operational knowledge.
 
-v0.2.2 keeps the existing Next.js / TypeScript / Tailwind CSS / React Flow structure and focuses on local-use stability after creating Trees and Nodes.
+v0.2.3 focuses on smartphone usability: creating Forests, creating a Tree with its first Seed, moving without browser back, and tapping dashboard or notification cards to reach the next Tree.
 
 ## Product Summary
 
@@ -15,6 +15,10 @@ v0.2.2 keeps the existing Next.js / TypeScript / Tailwind CSS / React Flow struc
 ## Core Flow
 
 ```text
+Forest
+↓
+Tree
+↓
 Seed / 気づき
 ↓
 Branch / 改善案
@@ -32,7 +36,7 @@ System / 制度化
 - `/forests` Forest list
 - `/forests/[forestId]` Forest detail
 - `/tree/[treeId]` React Flow Tree View
-- `/create` Create Tree / Create Node
+- `/create` Create Forest / Create Tree / Create Node
 - `/search` Search related Trees and Nodes
 - `/me` Contribution tendencies
 - `/notifications` Local pseudo notifications
@@ -74,124 +78,88 @@ knowledge-forest-mvp-v0.2
 
 To reset local sample data, delete this LocalStorage key from browser dev tools and reload the app.
 
-## Manual Test Scenario
+## Manual Test Scenario v0.2.3
 
-Use this scenario to verify that Create changes are naturally reflected across Dashboard, Tree View, Search, My Page, and browser reloads.
+Use this scenario on a smartphone-sized viewport.
 
-### 1. Add Trial Node To Existing Tree
+### 1. Create Forest
 
 1. Open `/create`.
-2. Choose `Nodeを追加`.
-3. Select Tree: `ランチ帯の席案内安定化Tree`.
-4. Select Phase: `Trial / 実践`.
-5. Select a parent Node in the same Tree.
-6. Enter the Trial sample below and submit.
-7. Confirm the app moves to the target Tree View.
-8. Confirm the new Trial Node appears in React Flow.
-9. Confirm an edge connects the parent Node to the added Node.
-10. Confirm the new Node also appears in the Tree Nodes list.
+2. Tap `Forestを作成`.
+3. Enter a Forest name, description, owner/use label, tags, and visibility.
+4. Submit.
+5. Confirm the app moves to `/forests/[forestId]`.
+6. Open `/forests` and confirm the new Forest appears in the Forest list.
 
-### 2. Add Sigma Node To Same Tree
+### 2. Create Tree With First Seed
 
-1. Open `/create` again.
-2. Select Tree: `ランチ帯の席案内安定化Tree`.
-3. Select Phase: `Sigma / 統合`.
-4. Select the Trial Node as parent.
-5. Enter the Sigma sample below and submit.
-6. Confirm the Sigma Node is emphasized in React Flow.
+1. From the new Forest detail page, tap `Treeを作成する`.
+2. Confirm the Create page opens with that Forest selected.
+3. Enter Tree title, Tree summary, Tree tags, first Seed title, and first Seed body.
+4. Submit.
+5. Confirm the app moves to the new Tree View.
+6. Confirm the Seed Node appears in React Flow.
+7. Confirm the Seed Node appears in the Tree Nodes list.
 
-### 3. Confirm Dashboard Reflection
+### 3. Add Node To Tree
+
+1. Open `/create`.
+2. Tap `Nodeを追加`.
+3. Select the newly created Tree.
+4. Select a parent Node.
+5. Add a Branch, Trial, or Sigma Node.
+6. Confirm the new Node appears in React Flow.
+7. Confirm an edge connects the parent Node to the added Node.
+8. Confirm Sigma Nodes remain visually emphasized.
+
+### 4. Dashboard Reflection
 
 1. Open `/`.
-2. Confirm Total Nodes increased.
-3. Confirm Phase Counts reflect the new Trial and Sigma Nodes.
-4. If the Tree newly reached Sigma, confirm Sigma arrival rate changes.
-5. If no new System Node was added, Systemization rate should not increase.
+2. Confirm Total Forests, Total Trees, and Total Nodes changed.
+3. Confirm Phase Counts changed after adding Nodes.
+4. Tap Dashboard metric cards:
+   - Total Forests -> `/forests`
+   - Total Trees -> `/search?scope=trees`
+   - Total Nodes -> `/search?scope=nodes`
+   - Sigma arrival -> `/search?phase=sigma`
+   - Systemization -> `/search?phase=system`
+   - System candidate -> `/search?status=system-candidate`
+   - Next trial waiting -> `/search?status=stalled`
+5. Tap Phase Count cards and confirm Search opens with the matching phase filter.
 
-### 4. Confirm Search Reflection
+### 5. Search Reflection
 
 1. Open `/search`.
-2. Confirm the empty search state says it is showing recently updated Trees and Trees ready to consider Systemization.
-3. Search for a term from the added Node, such as `入口側` or `後の動線`.
-4. Confirm Related Trees and Matched Nodes are filtered by the search term.
+2. Confirm the initial state says it shows recently updated Trees and Trees ready to consider Systemization.
+3. Search for a term from the new Forest, Tree, or Node.
+4. Confirm Related Trees and Matched Nodes are filtered naturally.
 
-### 5. Confirm My Page Reflection
+### 6. Notifications Navigation
+
+1. Open `/notifications`.
+2. Tap a notification card.
+3. Confirm it opens the related Tree View.
+4. If a notification has a related Node, confirm the URL includes `?node=...`.
+
+### 7. My Page
 
 1. Open `/me`.
-2. Confirm Phase counts and contribution tendency comments are visible.
-3. Confirm the added Nodes are reflected as contribution tendencies.
-4. Do not treat these numbers as ranking or HR evaluation.
+2. Confirm the tendency summary is visible.
+3. Confirm compact Phase tendencies are visible.
+4. Confirm Next Contribution links are visible.
+5. Tap a recent contribution note and confirm it opens the related Tree.
+6. Confirm the page explains that data is based on this browser's LocalStorage, not an account or HR evaluation.
 
-### 6. Confirm LocalStorage Reload
+### 8. Navigation Without Browser Back
 
-1. Reload the browser after adding the Trial and Sigma Nodes.
-2. Confirm the added data remains visible in Dashboard, Tree View, Search, and My Page.
+1. Confirm `/forests/[forestId]` has `Forest一覧へ`.
+2. Confirm `/tree/[treeId]` has a link back to its Forest.
+3. Confirm `/create`, `/search`, `/me`, and `/notifications` each have `Dashboardへ戻る`.
 
-## Sample Inputs
+### 9. LocalStorage Reload
 
-### Trial追加例
-
-Tree:
-
-```text
-ランチ帯の席案内安定化Tree
-```
-
-Phase:
-
-```text
-Trial / 実践
-```
-
-Title:
-
-```text
-入口側の席から案内すると滞在時間が安定した
-```
-
-Body:
-
-```text
-ランチ帯に入口側の席を先に案内したところ、後から来た2名客を奥に通しやすくなり、ピーク時の席移動が減った。
-```
-
-Tags:
-
-```text
-接客, ランチ, 実践
-```
-
-### Sigma追加例
-
-Tree:
-
-```text
-ランチ帯の席案内安定化Tree
-```
-
-Phase:
-
-```text
-Sigma / 統合
-```
-
-Title:
-
-```text
-ランチ帯の席案内は「先に詰める」より「後の動線を残す」が重要
-```
-
-Body:
-
-```text
-席案内の目的は満席にすることではなく、後から来る人数や提供動線を崩さないことだった。入口側と奥側の使い分けをルール化できる。
-```
-
-Tags:
-
-```text
-Sigma, 接客, 席案内
-```
+1. Reload the browser after creating a Forest, Tree, Seed, and additional Node.
+2. Confirm the data remains visible in Dashboard, Forest list, Forest detail, Tree View, Search, and My Page.
 
 ## Limitations
 

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { seedData, STORAGE_KEY_V02 } from "./v02-seed";
 import {
   DashboardMetrics,
+  Forest,
+  ForestVisibility,
   KnowledgeForestData,
   KnowledgeNode,
   KnowledgeTree,
@@ -82,6 +84,16 @@ export function formatDate(value: string) {
 
 export function createId(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function createSlugId(prefix: string, value: string) {
+  const slug = value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\u3040-\u30ff\u3400-\u9fff]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 42);
+  return `${prefix}-${slug || "item"}-${Date.now()}`;
 }
 
 export function getTreeNodes(data: KnowledgeForestData, treeId: string) {
@@ -184,14 +196,24 @@ export function searchKnowledge(data: KnowledgeForestData, query: string) {
   return { trees: treeMatches, nodes };
 }
 
-export function addTree(data: KnowledgeForestData, forestId: string, title: string, summary: string) {
+export function addForest(
+  data: KnowledgeForestData,
+  payload: {
+    title: string;
+    description: string;
+    ownerLabel: string;
+    tags: string[];
+    visibility: ForestVisibility;
+  }
+) {
   const now = new Date().toISOString();
-  const tree: KnowledgeTree = {
-    id: createId("tree"),
-    forestId,
-    title,
-    summary,
-    tags: ["新規Tree"],
+  const forest: Forest = {
+    id: createSlugId("forest", payload.title),
+    title: payload.title,
+    description: payload.description,
+    tags: payload.tags,
+    ownerLabel: payload.ownerLabel || "Local Demo",
+    visibility: payload.visibility,
     createdAt: now,
     updatedAt: now
   };
@@ -199,7 +221,37 @@ export function addTree(data: KnowledgeForestData, forestId: string, title: stri
   return {
     nextData: {
       ...data,
-      trees: [tree, ...data.trees]
+      forests: [forest, ...data.forests]
+    },
+    forest
+  };
+}
+
+export function addTree(
+  data: KnowledgeForestData,
+  forestId: string,
+  title: string,
+  summary: string,
+  tags: string[] = ["新規Tree"]
+) {
+  const now = new Date().toISOString();
+  const tree: KnowledgeTree = {
+    id: createSlugId("tree", title),
+    forestId,
+    title,
+    summary,
+    tags: tags.length ? tags : ["新規Tree"],
+    createdAt: now,
+    updatedAt: now
+  };
+
+  return {
+    nextData: {
+      ...data,
+      trees: [tree, ...data.trees],
+      forests: data.forests.map((forest) =>
+        forest.id === forestId ? { ...forest, updatedAt: now } : forest
+      )
     },
     tree
   };
@@ -240,5 +292,33 @@ export function addNode(
       )
     },
     node
+  };
+}
+
+export function addTreeWithSeed(
+  data: KnowledgeForestData,
+  payload: {
+    forestId: string;
+    title: string;
+    summary: string;
+    tags: string[];
+    seedTitle: string;
+    seedBody: string;
+  }
+) {
+  const treeResult = addTree(data, payload.forestId, payload.title, payload.summary, payload.tags);
+  const nodeResult = addNode(treeResult.nextData, {
+    treeId: treeResult.tree.id,
+    parentId: null,
+    phase: "seed",
+    title: payload.seedTitle,
+    body: payload.seedBody,
+    tags: ["Seed", ...payload.tags].slice(0, 6)
+  });
+
+  return {
+    nextData: nodeResult.nextData,
+    tree: treeResult.tree,
+    seedNode: nodeResult.node
   };
 }

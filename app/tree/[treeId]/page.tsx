@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import Link from "next/link";
+import { useParams, useSearchParams } from "next/navigation";
 import { Background, Controls, Edge, MarkerType, MiniMap, Node, ReactFlow } from "@xyflow/react";
+import { ChevronLeft, Plus } from "lucide-react";
 import { NodeDetailPanel } from "@/components/NodeDetailPanel";
 import { PhaseBadge } from "@/components/PhaseBadge";
 import {
@@ -16,15 +18,21 @@ import {
 
 export default function TreeDetailPage() {
   const params = useParams<{ treeId: string }>();
+  const searchParams = useSearchParams();
+  const focusedNodeId = searchParams.get("node");
   const { data } = useKnowledgeForestData();
   const tree = data.trees.find((item) => item.id === params.treeId);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(focusedNodeId);
   const treeNodes = useMemo(() => (tree ? getTreeNodes(data, tree.id) : []), [data, tree]);
   const flow = useMemo(() => buildFlow(treeNodes), [treeNodes]);
 
   if (!tree) {
     return (
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft">
+        <Link className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-blue-700" href="/forests">
+          <ChevronLeft className="h-4 w-4" />
+          Forest一覧へ
+        </Link>
         <h2 className="text-xl font-bold text-forest-ink">Treeが見つかりません</h2>
       </section>
     );
@@ -32,11 +40,50 @@ export default function TreeDetailPage() {
 
   const forest = data.forests.find((item) => item.id === tree.forestId);
   const selectedNode = treeNodes.find((node) => node.id === selectedId) ?? treeNodes[0];
+  const forestHref = forest ? `/forests/${forest.id}` : "/forests";
+
+  if (treeNodes.length === 0) {
+    return (
+      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft sm:p-7">
+        <div className="mb-4 flex flex-wrap items-center gap-2 text-sm font-bold text-slate-500">
+          <Link className="inline-flex items-center gap-1 text-blue-700" href={forestHref}>
+            <ChevronLeft className="h-4 w-4" />
+            {forest ? `${forest.title}へ戻る` : "Forestへ戻る"}
+          </Link>
+          <span>/</span>
+          <span>{tree.title}</span>
+        </div>
+        <h2 className="text-2xl font-bold text-forest-ink">{tree.title}</h2>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          このTreeにはまだNodeがありません。最初のSeedを追加して、知識の成長を始めましょう。
+        </p>
+        <Link
+          href="/create"
+          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-forest-ink px-4 py-3 text-sm font-bold text-white"
+        >
+          <Plus className="h-4 w-4" />
+          Seed Nodeを追加する
+        </Link>
+      </section>
+    );
+  }
 
   return (
     <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
       <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-soft">
         <div className="border-b border-slate-200 p-4">
+          <div className="mb-3 flex flex-wrap items-center gap-2 text-sm font-bold text-slate-500">
+            <Link className="inline-flex items-center gap-1 text-blue-700" href={forestHref}>
+              <ChevronLeft className="h-4 w-4" />
+              {forest ? `${forest.title}へ戻る` : "Forestへ戻る"}
+            </Link>
+            <span>/</span>
+            <Link className="text-blue-700" href="/">Dashboard</Link>
+            <span>/</span>
+            <Link className="text-blue-700" href="/forests">Forests</Link>
+            <span>/</span>
+            <span>{tree.title}</span>
+          </div>
           <p className="text-sm font-bold text-emerald-700">{forest?.title ?? "Forest"}</p>
           <h2 className="mt-1 text-xl font-bold text-forest-ink">{tree.title}</h2>
           <p className="mt-1 text-sm leading-6 text-slate-500">{tree.summary}</p>
@@ -71,7 +118,7 @@ export default function TreeDetailPage() {
           {treeNodes.map((node) => (
             <button
               key={node.id}
-              className="rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-blue-200 hover:bg-blue-50"
+              className="rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-blue-200 hover:bg-blue-50 active:scale-[0.99]"
               onClick={() => setSelectedId(node.id)}
               type="button"
             >

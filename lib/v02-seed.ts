@@ -219,19 +219,28 @@ export const seedData: KnowledgeForestData = {
       id: "notice-branch-added",
       title: "Seedから新しいBranchが伸びました",
       body: "初回接客フローのTreeに改善案が追加されました。",
-      createdAt: daysAgo(1)
+      createdAt: daysAgo(1),
+      relatedTreeId: "tree-first-service-flow",
+      relatedNodeId: "node-people-branch",
+      read: false
     },
     {
       id: "notice-sigma-candidate",
       title: "System化を検討しやすいTreeがあります",
       body: "制作レビュー循環TreeはSigmaに到達しています。再利用可能な運用知として整理できるかを検討できます。",
-      createdAt: daysAgo(2)
+      createdAt: daysAgo(2),
+      relatedTreeId: "tree-student-review-loop",
+      relatedNodeId: "node-review-sigma",
+      read: false
     },
     {
       id: "notice-stalled-tree",
       title: "停滞しているTreeがあります",
       body: "ランチ帯の席案内安定化TreeはTrial待ちの状態です。",
-      createdAt: daysAgo(4)
+      createdAt: daysAgo(4),
+      relatedTreeId: "tree-lunch-seat-flow",
+      relatedNodeId: "node-lunch-seat-proposal",
+      read: false
     }
   ]
 };

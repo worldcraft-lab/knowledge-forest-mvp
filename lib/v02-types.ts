@@ -2,8 +2,18 @@ export type Phase = "seed" | "branch" | "trial" | "sigma" | "system";
 
 export type ForestVisibility = "private" | "team" | "organization" | "public-demo";
 
+export type Area = {
+  id: string;
+  title: string;
+  description: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type Forest = {
   id: string;
+  areaId?: string;
   title: string;
   description: string;
   tags: string[];
@@ -48,6 +58,7 @@ export type NotificationItem = {
 };
 
 export type KnowledgeForestData = {
+  areas: Area[];
   forests: Forest[];
   trees: KnowledgeTree[];
   nodes: KnowledgeNode[];
@@ -55,6 +66,7 @@ export type KnowledgeForestData = {
 };
 
 export type DashboardMetrics = {
+  totalAreas: number;
   totalForests: number;
   totalTrees: number;
   totalNodes: number;

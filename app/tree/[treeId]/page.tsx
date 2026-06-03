@@ -9,6 +9,7 @@ import { NodeDetailPanel } from "@/components/NodeDetailPanel";
 import { PhaseBadge } from "@/components/PhaseBadge";
 import {
   formatDate,
+  getForestArea,
   getTreeNodes,
   phaseLabels,
   phaseNodeColors,
@@ -39,6 +40,7 @@ export default function TreeDetailPage() {
   }
 
   const forest = data.forests.find((item) => item.id === tree.forestId);
+  const area = forest ? getForestArea(data, forest) : null;
   const selectedNode = treeNodes.find((node) => node.id === selectedId) ?? treeNodes[0];
   const forestHref = forest ? `/forests/${forest.id}` : "/forests";
 
@@ -82,9 +84,17 @@ export default function TreeDetailPage() {
             <span>/</span>
             <Link className="text-blue-700" href="/forests">Forests</Link>
             <span>/</span>
+            {area && (
+              <>
+                <span>{area.title}</span>
+                <span>/</span>
+              </>
+            )}
             <span>{tree.title}</span>
           </div>
-          <p className="text-sm font-bold text-emerald-700">{forest?.title ?? "Forest"}</p>
+          <p className="text-sm font-bold text-emerald-700">
+            {area ? `${area.title} / ` : ""}{forest?.title ?? "Forest"}
+          </p>
           <h2 className="mt-1 text-xl font-bold text-forest-ink">{tree.title}</h2>
           <p className="mt-1 text-sm leading-6 text-slate-500">{tree.summary}</p>
           <div className="mt-3 flex flex-wrap gap-2">

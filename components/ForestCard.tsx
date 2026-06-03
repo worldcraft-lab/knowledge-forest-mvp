@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Trees } from "lucide-react";
 import { Forest, KnowledgeForestData } from "@/lib/v02-types";
-import { getForestTrees } from "@/lib/v02-store";
+import { getForestArea, getForestTrees } from "@/lib/v02-store";
 
 export function ForestCard({ forest, data }: { forest: Forest; data: KnowledgeForestData }) {
   const trees = getForestTrees(data, forest.id);
+  const area = getForestArea(data, forest);
 
   return (
     <Link
@@ -16,6 +17,7 @@ export function ForestCard({ forest, data }: { forest: Forest; data: KnowledgeFo
           <Trees className="h-5 w-5" />
         </div>
         <div className="min-w-0">
+          <p className="text-xs font-bold uppercase text-teal-700">Area: {area.title}</p>
           <h3 className="text-lg font-bold leading-7 text-forest-ink">{forest.title}</h3>
           <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{forest.description}</p>
         </div>

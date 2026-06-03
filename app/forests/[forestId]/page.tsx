@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ChevronLeft, Plus } from "lucide-react";
 import { TreeCard } from "@/components/TreeCard";
-import { getForestTrees, useKnowledgeForestData } from "@/lib/v02-store";
+import { getForestArea, getForestTrees, useKnowledgeForestData } from "@/lib/v02-store";
 
 export default function ForestDetailPage() {
   const params = useParams<{ forestId: string }>();
@@ -24,6 +24,7 @@ export default function ForestDetailPage() {
   }
 
   const trees = getForestTrees(data, forest.id);
+  const area = getForestArea(data, forest);
 
   return (
     <div className="space-y-5">
@@ -36,11 +37,14 @@ export default function ForestDetailPage() {
           <span>/</span>
           <Link className="text-blue-700" href="/">Dashboard</Link>
           <span>/</span>
+          <span>{area.title}</span>
+          <span>/</span>
           <span>{forest.title}</span>
         </div>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-bold text-emerald-700">Forest</p>
+            <p className="text-sm font-bold text-emerald-700">Area / Forest</p>
+            <p className="mt-1 text-xs font-bold uppercase text-teal-700">{area.title}</p>
             <h2 className="mt-1 text-2xl font-bold text-forest-ink">{forest.title}</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{forest.description}</p>
             <p className="mt-2 text-xs font-semibold text-slate-500">

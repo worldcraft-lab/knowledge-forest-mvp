@@ -6,9 +6,28 @@ const daysAgo = (days: number) => new Date(base - days * 24 * 60 * 60 * 1000).to
 export const STORAGE_KEY_V02 = "knowledge-forest-mvp-v0.2";
 
 export const seedData: KnowledgeForestData = {
+  areas: [
+    {
+      id: "area-store-ops",
+      title: "店舗運営",
+      description: "接客、席案内、ピークタイム運用など、店舗現場の知識を束ねるAreaです。",
+      tags: ["店舗運営", "接客", "運用"],
+      createdAt: daysAgo(24),
+      updatedAt: daysAgo(1)
+    },
+    {
+      id: "area-stos",
+      title: "StoS / 学生OEM",
+      description: "StoS関係者と学生OEMの制作、レビュー、学習運用に関するForestを束ねます。",
+      tags: ["StoS", "学生OEM", "制作"],
+      createdAt: daysAgo(18),
+      updatedAt: daysAgo(3)
+    }
+  ],
   forests: [
     {
       id: "forest-restaurant-ops",
+      areaId: "area-store-ops",
       title: "飲食店オペレーション改善",
       description:
         "接客、案内、ピークタイム運用の気づきを、現場で再利用できる手順へ育てるForest。",
@@ -18,6 +37,7 @@ export const seedData: KnowledgeForestData = {
     },
     {
       id: "forest-student-oem",
+      areaId: "area-stos",
       title: "学生OEM 実践知",
       description:
         "学生メンバーの小さな実践から、再現可能な学習・制作フローを整理するForest。",

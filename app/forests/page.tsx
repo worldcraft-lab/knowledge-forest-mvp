@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { ForestCard } from "@/components/ForestCard";
-import { useKnowledgeForestData } from "@/lib/v02-store";
+import { getAreaForests, useKnowledgeForestData } from "@/lib/v02-store";
 
 export default function ForestsPage() {
   const { data } = useKnowledgeForestData();
@@ -13,9 +13,9 @@ export default function ForestsPage() {
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft sm:p-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-forest-ink">Forests</h2>
+            <h2 className="text-2xl font-bold text-forest-ink">Areas / Forests</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-              Forestはテーマやプロジェクト単位の知識空間です。各Forestの中で複数のTreeが成長します。
+              Areaは複数のForestを束ねる知識領域です。Area → Forest → Tree → Node の順に、気づきが運用知へ育つ場所を整理します。
             </p>
           </div>
           <Link
@@ -27,10 +27,45 @@ export default function ForestsPage() {
           </Link>
         </div>
       </section>
-      <section className="grid gap-4 lg:grid-cols-2">
-        {data.forests.map((forest) => (
-          <ForestCard key={forest.id} forest={forest} data={data} />
-        ))}
+
+      <section className="space-y-5">
+        {data.areas.map((area) => {
+          const forests = getAreaForests(data, area.id);
+
+          return (
+            <div key={area.id} className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase text-teal-700">Area</p>
+                  <h3 className="mt-1 text-xl font-bold text-forest-ink">{area.title}</h3>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{area.description}</p>
+                </div>
+                <span className="rounded-md bg-teal-50 px-3 py-2 text-xs font-bold text-teal-800">
+                  {forests.length} Forests
+                </span>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                {area.tags.map((tag) => (
+                  <span key={tag} className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                {forests.map((forest) => (
+                  <ForestCard key={forest.id} forest={forest} data={data} />
+                ))}
+                {forests.length === 0 && (
+                  <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+                    このAreaにはまだForestがありません。CreateからForestを作成するとここに表示されます。
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </section>
     </div>
   );

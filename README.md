@@ -1,39 +1,41 @@
-# Knowledge Forest MVP v0.2.4
+# Knowledge Forest MVP v0.2.5
 
 Knowledge Forest is a local browser MVP for visualizing how small observations grow into reusable operational knowledge.
 
-v0.2.4 keeps the existing structure and improves PC readability for the Knowledge Growth Flow plus clarity in the Tree creation form.
+v0.2.5 adds `Area` above Forest so growing Forests can be organized by knowledge domain.
 
 ## Product Summary
 
-- Forest: topic or project-level knowledge space
+- Area: top-level knowledge domain that groups multiple Forests
+- Forest: topic or project-level knowledge space inside an Area
 - Knowledge Tree: a linked growth path inside a Forest
 - Knowledge Node: one knowledge item in the Seed / Branch / Trial / Sigma / System flow
 - Sigma: the integration phase where scattered Branch and Trial knowledge is summarized
 - System: arrival at reusable operational knowledge, not a people evaluation signal
 
-## Core Flow
+## Core Hierarchy
 
 ```text
-Forest
-↓
-Tree
-↓
+Area
+└ Forest
+  └ Tree
+    └ Node
+```
+
+## Knowledge Growth Flow
+
+```text
 Seed / 気づき
-↓
-Branch / 改善案
-↓
-Trial / 実践
-↓
-Sigma / 統合
-↓
-System / 制度化
+→ Branch / 改善案
+→ Trial / 実践
+→ Sigma / 統合
+→ System / 制度化
 ```
 
 ## Routes
 
 - `/` Dashboard
-- `/forests` Forest list
+- `/forests` Area-grouped Forest list
 - `/forests/[forestId]` Forest detail
 - `/tree/[treeId]` React Flow Tree View
 - `/create` Create Forest / Create Tree / Create Node
@@ -76,24 +78,27 @@ Data is stored in the browser under:
 knowledge-forest-mvp-v0.2
 ```
 
+Existing v0.2 LocalStorage data is normalized on load. If an older Forest has no `areaId`, it is placed under the default `General` Area.
+
 To reset local sample data, delete this LocalStorage key from browser dev tools and reload the app.
 
-## Manual Test Scenario v0.2.4
+## Manual Test Scenario v0.2.5
 
-Use this scenario on a smartphone-sized viewport.
+Use this scenario on both smartphone and desktop widths.
 
-### 1. Create Forest
+### 1. Create Area And Forest
 
 1. Open `/create`.
 2. Tap `Forestを作成`.
-3. Enter a Forest name, description, owner/use label, tags, and visibility.
-4. Submit.
-5. Confirm the app moves to `/forests/[forestId]`.
-6. Open `/forests` and confirm the new Forest appears in the Forest list.
+3. In the Area section, select an existing Area or enter a new Area name such as `店舗運営`.
+4. Enter a Forest name, description, owner/use label, tags, and visibility.
+5. Submit.
+6. Confirm the app moves to `/forests/[forestId]`.
+7. Open `/forests` and confirm the Forest appears under the selected or newly created Area.
 
 ### 2. Create Tree With First Seed
 
-1. From the new Forest detail page, tap `Treeを作成する`.
+1. From the Forest detail page, tap `Treeを作成する`.
 2. Confirm the Create page opens with that Forest selected.
 3. Enter Tree title, Tree summary, Tree tags, first Seed title, and first Seed body.
 4. Submit.
@@ -115,9 +120,10 @@ Use this scenario on a smartphone-sized viewport.
 ### 4. Dashboard Reflection
 
 1. Open `/`.
-2. Confirm Total Forests, Total Trees, and Total Nodes changed.
+2. Confirm Total Areas, Total Forests, Total Trees, and Total Nodes changed.
 3. Confirm Phase Counts changed after adding Nodes.
 4. Tap Dashboard metric cards:
+   - Total Areas -> `/forests`
    - Total Forests -> `/forests`
    - Total Trees -> `/search?scope=trees`
    - Total Nodes -> `/search?scope=nodes`
@@ -131,35 +137,19 @@ Use this scenario on a smartphone-sized viewport.
 
 1. Open `/search`.
 2. Confirm the initial state says it shows recently updated Trees and Trees ready to consider Systemization.
-3. Search for a term from the new Forest, Tree, or Node.
+3. Search for a term from the new Area, Forest, Tree, or Node.
 4. Confirm Related Trees and Matched Nodes are filtered naturally.
 
-### 6. Notifications Navigation
+### 6. Navigation Without Browser Back
 
-1. Open `/notifications`.
-2. Tap a notification card.
-3. Confirm it opens the related Tree View.
-4. If a notification has a related Node, confirm the URL includes `?node=...`.
-
-### 7. My Page
-
-1. Open `/me`.
-2. Confirm the tendency summary is visible.
-3. Confirm compact Phase tendencies are visible.
-4. Confirm Next Contribution links are visible.
-5. Tap a recent contribution note and confirm it opens the related Tree.
-6. Confirm the page explains that data is based on this browser's LocalStorage, not an account or HR evaluation.
-
-### 8. Navigation Without Browser Back
-
-1. Confirm `/forests/[forestId]` has `Forest一覧へ`.
+1. Confirm `/forests/[forestId]` has a link back to Forests.
 2. Confirm `/tree/[treeId]` has a link back to its Forest.
-3. Confirm `/create`, `/search`, `/me`, and `/notifications` each have `Dashboardへ戻る`.
+3. Confirm `/create`, `/search`, `/me`, and `/notifications` each have a Dashboard return link.
 
-### 9. LocalStorage Reload
+### 7. LocalStorage Reload
 
-1. Reload the browser after creating a Forest, Tree, Seed, and additional Node.
-2. Confirm the data remains visible in Dashboard, Forest list, Forest detail, Tree View, Search, and My Page.
+1. Reload the browser after creating an Area, Forest, Tree, Seed, and additional Node.
+2. Confirm the data remains visible in Dashboard, Area-grouped Forest list, Forest detail, Tree View, Search, and My Page.
 
 ## Limitations
 

@@ -1,8 +1,8 @@
-# Knowledge Forest MVP v0.2.3
+# Knowledge Forest MVP v0.2.4
 
 Knowledge Forest is a local browser MVP for visualizing how small observations grow into reusable operational knowledge.
 
-v0.2.3 focuses on smartphone usability: creating Forests, creating a Tree with its first Seed, moving without browser back, and tapping dashboard or notification cards to reach the next Tree.
+v0.2.4 keeps the existing structure and improves PC readability for the Knowledge Growth Flow plus clarity in the Tree creation form.
 
 ## Product Summary
 
@@ -78,7 +78,7 @@ knowledge-forest-mvp-v0.2
 
 To reset local sample data, delete this LocalStorage key from browser dev tools and reload the app.
 
-## Manual Test Scenario v0.2.3
+## Manual Test Scenario v0.2.4
 
 Use this scenario on a smartphone-sized viewport.
 

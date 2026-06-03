@@ -88,7 +88,7 @@ function Brand() {
       </div>
       <div>
         <p className="text-sm font-semibold text-slate-500">Knowledge Forest</p>
-        <h1 className="text-xl font-bold tracking-normal text-forest-ink">MVP v0.2.3</h1>
+        <h1 className="text-xl font-bold tracking-normal text-forest-ink">MVP v0.2.4</h1>
       </div>
     </Link>
   );

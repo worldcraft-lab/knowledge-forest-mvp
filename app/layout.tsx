@@ -3,8 +3,8 @@ import { AppShell } from "@/components/AppShell";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Knowledge Forest MVP v0.2.3",
-  description: "ForestとTreeで知識の成長を可視化するローカルMVP v0.2.3"
+  title: "Knowledge Forest MVP v0.2.4",
+  description: "ForestとTreeで知識の成長を可視化するローカルMVP v0.2.4"
 };
 
 export default function RootLayout({

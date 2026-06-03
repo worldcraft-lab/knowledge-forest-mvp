@@ -196,12 +196,22 @@ function CreatePageContent() {
             <input className="input" value={treeForm.tags} onChange={(event) => setTreeForm({ ...treeForm, tags: event.target.value })} />
           </Field>
           <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
-            <p className="text-sm font-bold text-blue-900">最初のSeed Node</p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-bold text-blue-900">最初のSeed Node</p>
+                <p className="mt-1 text-xs leading-5 text-blue-800">
+                  Treeは最初のSeedから育ちます。Branch / Trial / Sigma / Systemは、Tree作成後にNode追加で育てます。
+                </p>
+              </div>
+              <div className="rounded-md border border-blue-200 bg-white px-3 py-2 text-xs font-bold text-blue-900">
+                <span className="text-slate-500">Phase: </span>Seed / 気づき
+              </div>
+            </div>
             <div className="mt-3 grid gap-4">
-              <Field label="Seedタイトル">
+              <Field label="最初のSeedタイトル">
                 <input className="input" required value={treeForm.seedTitle} onChange={(event) => setTreeForm({ ...treeForm, seedTitle: event.target.value })} />
               </Field>
-              <Field label="Seed本文">
+              <Field label="最初のSeed本文">
                 <textarea className="input min-h-28 resize-y" required value={treeForm.seedBody} onChange={(event) => setTreeForm({ ...treeForm, seedBody: event.target.value })} />
               </Field>
             </div>

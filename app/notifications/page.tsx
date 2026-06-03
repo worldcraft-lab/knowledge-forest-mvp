@@ -32,7 +32,7 @@ export default function NotificationsPage() {
       </div>
       <h2 className="text-2xl font-bold text-forest-ink">Local Notifications</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-        MVP v0.2.3では実通知ではなく、次に見るとよいTreeへ移動するためのローカル通知として表示します。
+        MVP v0.2.4では実通知ではなく、次に見るとよいTreeへ移動するためのローカル通知として表示します。
       </p>
       <div className="mt-5 space-y-3">
         {data.notifications.map((item) => {

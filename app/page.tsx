@@ -25,7 +25,7 @@ export default function DashboardPage() {
               ForestからTreeを育て、気づきを運用知へつなげる。
             </h2>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-              v0.2.3では、Forest作成、TreeとSeedの同時作成、Dashboardからの検索導線を強化しました。
+              v0.2.4では、Forest作成、TreeとSeedの同時作成、Dashboardからの検索導線に加えて、PCでも読みやすい知識成長フローを整えました。
               System化は人の評価ではなく、再利用可能な運用知への到達として扱います。
             </p>
           </div>

@@ -47,6 +47,17 @@ export type KnowledgeNode = {
   commentCount: number;
 };
 
+export type Feedback = {
+  id: string;
+  treeId: string;
+  nodeId: string;
+  body: string;
+  authorLabel: string;
+  createdAt: string;
+  updatedAt: string;
+  archivedAt?: string | null;
+};
+
 export type NotificationItem = {
   id: string;
   title: string;
@@ -62,6 +73,7 @@ export type KnowledgeForestData = {
   forests: Forest[];
   trees: KnowledgeTree[];
   nodes: KnowledgeNode[];
+  feedbacks: Feedback[];
   notifications: NotificationItem[];
 };
 
@@ -70,6 +82,7 @@ export type DashboardMetrics = {
   totalForests: number;
   totalTrees: number;
   totalNodes: number;
+  totalFeedbacks: number;
   phaseCounts: Record<Phase, number>;
   sigmaArrivalRate: number;
   systemizationRate: number;

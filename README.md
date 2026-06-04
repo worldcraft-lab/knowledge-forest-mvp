@@ -1,8 +1,8 @@
-# Knowledge Forest MVP v0.2.5
+# Knowledge Forest MVP v0.2.6
 
 Knowledge Forest is a local browser MVP for visualizing how small observations grow into reusable operational knowledge.
 
-v0.2.5 adds `Area` above Forest so growing Forests can be organized by knowledge domain.
+v0.2.6 adds Feedback under Node. Feedback is not a social comment thread; it is a note, viewpoint, or improvement seed that can be cut out into a Branch.
 
 ## Product Summary
 
@@ -10,6 +10,7 @@ v0.2.5 adds `Area` above Forest so growing Forests can be organized by knowledge
 - Forest: topic or project-level knowledge space inside an Area
 - Knowledge Tree: a linked growth path inside a Forest
 - Knowledge Node: one knowledge item in the Seed / Branch / Trial / Sigma / System flow
+- Feedback: a supplemental viewpoint attached to a Node
 - Sigma: the integration phase where scattered Branch and Trial knowledge is summarized
 - System: arrival at reusable operational knowledge, not a people evaluation signal
 
@@ -20,6 +21,7 @@ Area
 └ Forest
   └ Tree
     └ Node
+      └ Feedback
 ```
 
 ## Knowledge Growth Flow
@@ -32,14 +34,23 @@ Seed / 気づき
 → System / 制度化
 ```
 
+## Feedback
+
+- Feedback is attached to a Node.
+- Feedback is used for supplements, viewpoints, and improvement hints.
+- Important Feedback can be converted into a Branch Node.
+- Feedback counts are based on real LocalStorage data, not fixed sample numbers.
+- This is a LocalStorage-only MVP, so Feedback is not shared with other people or devices.
+- Feedback has `archivedAt` for future archive support; archived Feedback is hidden from normal views.
+
 ## Routes
 
 - `/` Dashboard
 - `/forests` Area-grouped Forest list
 - `/forests/[forestId]` Forest detail
-- `/tree/[treeId]` React Flow Tree View
+- `/tree/[treeId]` React Flow Tree View and Node Feedback
 - `/create` Create Forest / Create Tree / Create Node
-- `/search` Search related Trees and Nodes
+- `/search` Search related Trees, Nodes, and Feedback
 - `/me` Contribution tendencies
 - `/notifications` Local pseudo notifications
 
@@ -78,78 +89,56 @@ Data is stored in the browser under:
 knowledge-forest-mvp-v0.2
 ```
 
-Existing v0.2 LocalStorage data is normalized on load. If an older Forest has no `areaId`, it is placed under the default `General` Area.
+Existing v0.2 LocalStorage data is normalized on load. If older data has no `areas`, `areaId`, or `feedbacks`, the app adds safe defaults.
 
 To reset local sample data, delete this LocalStorage key from browser dev tools and reload the app.
 
-## Manual Test Scenario v0.2.5
+## Manual Test Scenario v0.2.6
 
 Use this scenario on both smartphone and desktop widths.
 
-### 1. Create Area And Forest
+### 1. Create Area, Forest, Tree, And Seed
 
 1. Open `/create`.
-2. Tap `Forestを作成`.
-3. In the Area section, select an existing Area or enter a new Area name such as `店舗運営`.
-4. Enter a Forest name, description, owner/use label, tags, and visibility.
-5. Submit.
-6. Confirm the app moves to `/forests/[forestId]`.
-7. Open `/forests` and confirm the Forest appears under the selected or newly created Area.
+2. Create a Forest under an existing or new Area.
+3. From the Forest detail page, create a Tree with its first Seed.
+4. Confirm the app moves to the new Tree View.
+5. Confirm the Seed Node appears in React Flow and in the Tree Nodes list.
 
-### 2. Create Tree With First Seed
+### 2. Add Feedback To Node
 
-1. From the Forest detail page, tap `Treeを作成する`.
-2. Confirm the Create page opens with that Forest selected.
-3. Enter Tree title, Tree summary, Tree tags, first Seed title, and first Seed body.
-4. Submit.
-5. Confirm the app moves to the new Tree View.
-6. Confirm the Seed Node appears in React Flow.
-7. Confirm the Seed Node appears in the Tree Nodes list.
+1. Open a Tree View.
+2. Select a Node in React Flow or the Tree Nodes list.
+3. In the Node detail panel, enter Feedback body and an optional author label.
+4. Submit Feedback.
+5. Confirm the Feedback appears immediately under the selected Node.
+6. Confirm the Feedback count updates from real data.
 
-### 3. Add Node To Tree
+### 3. Reload Feedback
 
-1. Open `/create`.
-2. Tap `Nodeを追加`.
-3. Select the newly created Tree.
-4. Select a parent Node.
-5. Add a Branch, Trial, or Sigma Node.
-6. Confirm the new Node appears in React Flow.
-7. Confirm an edge connects the parent Node to the added Node.
-8. Confirm Sigma Nodes remain visually emphasized.
+1. Reload the browser.
+2. Open the same Tree and Node.
+3. Confirm the Feedback remains visible from LocalStorage.
 
-### 4. Dashboard Reflection
-
-1. Open `/`.
-2. Confirm Total Areas, Total Forests, Total Trees, and Total Nodes changed.
-3. Confirm Phase Counts changed after adding Nodes.
-4. Tap Dashboard metric cards:
-   - Total Areas -> `/forests`
-   - Total Forests -> `/forests`
-   - Total Trees -> `/search?scope=trees`
-   - Total Nodes -> `/search?scope=nodes`
-   - Sigma arrival -> `/search?phase=sigma`
-   - Systemization -> `/search?phase=system`
-   - System candidate -> `/search?status=system-candidate`
-   - Next trial waiting -> `/search?status=stalled`
-5. Tap Phase Count cards and confirm Search opens with the matching phase filter.
-
-### 5. Search Reflection
+### 4. Search Feedback
 
 1. Open `/search`.
-2. Confirm the initial state says it shows recently updated Trees and Trees ready to consider Systemization.
-3. Search for a term from the new Area, Forest, Tree, or Node.
-4. Confirm Related Trees and Matched Nodes are filtered naturally.
+2. Search for a term from the Feedback body.
+3. Confirm the related Tree appears.
+4. Confirm Matched Feedback appears and links back to the Tree View.
 
-### 6. Navigation Without Browser Back
+### 5. Convert Feedback To Branch
 
-1. Confirm `/forests/[forestId]` has a link back to Forests.
-2. Confirm `/tree/[treeId]` has a link back to its Forest.
-3. Confirm `/create`, `/search`, `/me`, and `/notifications` each have a Dashboard return link.
+1. Open a Node with Feedback.
+2. Click `Branchとして切り出す`.
+3. Confirm a Branch Node is created with the Feedback body.
+4. Confirm React Flow shows the new Branch connected to the original Node.
 
-### 7. LocalStorage Reload
+### 6. My Page
 
-1. Reload the browser after creating an Area, Forest, Tree, Seed, and additional Node.
-2. Confirm the data remains visible in Dashboard, Area-grouped Forest list, Forest detail, Tree View, Search, and My Page.
+1. Open `/me`.
+2. Confirm Feedback count is visible.
+3. Confirm the wording describes a contribution tendency, not ranking or people evaluation.
 
 ## Limitations
 
@@ -157,5 +146,6 @@ Use this scenario on both smartphone and desktop widths.
 - No real notifications
 - No user accounts or permissions
 - No backend synchronization
+- Feedback is local to this browser and is not shared
 - No claim of public release or validation
 - Contribution views are tendencies only and must not be treated as ranking, HR evaluation, or performance scoring

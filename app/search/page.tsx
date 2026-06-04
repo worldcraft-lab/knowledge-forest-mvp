@@ -83,6 +83,7 @@ function SearchPageContent() {
   const hasParamFilter = Boolean(phase || status || scope);
   const visibleTrees = trimmedQuery ? results.trees : hasParamFilter ? filteredByParams.trees : initialTrees;
   const visibleNodes = trimmedQuery ? results.nodes : hasParamFilter ? filteredByParams.nodes : [];
+  const visibleFeedbacks = trimmedQuery ? results.feedbacks : [];
   const description = getDescription({ trimmedQuery, phase, status, scope });
 
   return (
@@ -112,7 +113,7 @@ function SearchPageContent() {
         {description}
       </div>
       <div className="mt-6">
-        <SearchResults data={data} trees={visibleTrees} nodes={visibleNodes} />
+        <SearchResults data={data} trees={visibleTrees} nodes={visibleNodes} feedbacks={visibleFeedbacks} />
       </div>
     </section>
   );

@@ -146,7 +146,7 @@ function CreatePageContent() {
       <h2 className="text-2xl font-bold text-forest-ink">Create Forest / Tree / Node</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
         Forest、Tree、Nodeをこの順に育てます。Tree作成時は最初のSeed Nodeも同時に作るため、作成後すぐTree Viewに成長の起点が表示されます。
-        v0.2.5では上位にAreaを追加し、Area → Forest → Tree → Node の階層で整理します。
+        v0.2.6ではNodeにFeedbackを残せます。Area → Forest → Tree → Node → Feedback の階層で整理します。
       </p>
 
       <div className="mt-5 grid max-w-xl grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1">

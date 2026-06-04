@@ -18,6 +18,7 @@ export default function MePage() {
   const { data } = useKnowledgeForestData();
   const myNodes = data.nodes.filter((node) => node.authorName === "あなた");
   const visibleNodes = myNodes.length ? myNodes : data.nodes;
+  const feedbackCount = data.feedbacks.filter((feedback) => !feedback.archivedAt).length;
   const counts = Object.fromEntries(
     phaseOrder.map((phase) => [phase, visibleNodes.filter((node) => node.phase === phase).length])
   ) as Record<Phase, number>;
@@ -60,6 +61,12 @@ export default function MePage() {
 
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft">
         <h3 className="text-lg font-bold text-forest-ink">Phase tendencies</h3>
+        <div className="mt-4 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+          <p className="text-sm font-bold text-emerald-900">Feedback: {feedbackCount}</p>
+          <p className="mt-1 text-xs leading-5 text-emerald-800">
+            補足や観点を残す関わりです。Feedbackは人の評価ではなく、次のBranchやTrialにつながる素材として扱います。
+          </p>
+        </div>
         <div className="mt-4 space-y-3">
           {phaseOrder.map((phase) => {
             const max = Math.max(...phaseOrder.map((item) => counts[item]), 1);

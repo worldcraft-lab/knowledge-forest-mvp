@@ -234,6 +234,18 @@ export const seedData: KnowledgeForestData = {
       commentCount: 5
     }
   ],
+  feedbacks: [
+    {
+      id: "feedback-first-flow-note",
+      treeId: "tree-first-service-flow",
+      nodeId: "node-first-flow-sigma",
+      body: "新人研修で使うなら、最初の声かけ例も一緒に残すとBranchやTrialにつなげやすそうです。",
+      authorLabel: "Local Tester",
+      createdAt: daysAgo(2),
+      updatedAt: daysAgo(2),
+      archivedAt: null
+    }
+  ],
   notifications: [
     {
       id: "notice-branch-added",

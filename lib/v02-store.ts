@@ -5,6 +5,7 @@ import { seedData, STORAGE_KEY_V02 } from "./v02-seed";
 import {
   Area,
   DashboardMetrics,
+  Feedback,
   Forest,
   ForestVisibility,
   KnowledgeForestData,
@@ -70,6 +71,10 @@ export function normalizeKnowledgeForestData(data: KnowledgeForestData): Knowled
     forests: data.forests.map((forest) => ({
       ...forest,
       areaId: forest.areaId && areaIds.has(forest.areaId) ? forest.areaId : DEFAULT_AREA_ID
+    })),
+    feedbacks: (data.feedbacks ?? []).map((feedback) => ({
+      ...feedback,
+      archivedAt: feedback.archivedAt ?? null
     }))
   };
 }
@@ -144,6 +149,14 @@ export function getForestArea(data: KnowledgeForestData, forest: Forest) {
   return data.areas.find((area) => area.id === (forest.areaId ?? DEFAULT_AREA_ID)) ?? defaultArea;
 }
 
+export function getNodeFeedbacks(data: KnowledgeForestData, nodeId: string) {
+  return data.feedbacks.filter((feedback) => feedback.nodeId === nodeId && !feedback.archivedAt);
+}
+
+export function getTreeFeedbacks(data: KnowledgeForestData, treeId: string) {
+  return data.feedbacks.filter((feedback) => feedback.treeId === treeId && !feedback.archivedAt);
+}
+
 export function getTreePhaseSet(nodes: KnowledgeNode[]) {
   return new Set(nodes.map((node) => node.phase));
 }
@@ -190,6 +203,7 @@ export function calculateMetrics(data: KnowledgeForestData): DashboardMetrics {
     totalForests: normalized.forests.length,
     totalTrees: normalized.trees.length,
     totalNodes: normalized.nodes.length,
+    totalFeedbacks: normalized.feedbacks.filter((feedback) => !feedback.archivedAt).length,
     phaseCounts,
     sigmaArrivalRate: normalized.trees.length ? Math.round((sigmaTrees.length / normalized.trees.length) * 100) : 0,
     systemizationRate: normalized.trees.length ? Math.round((systemTrees.length / normalized.trees.length) * 100) : 0,
@@ -208,30 +222,41 @@ export function searchKnowledge(data: KnowledgeForestData, query: string) {
   if (!q) {
     return {
       trees: normalized.trees,
-      nodes: normalized.nodes
+      nodes: normalized.nodes,
+      feedbacks: [] as Feedback[]
     };
   }
 
   const forestById = new Map(normalized.forests.map((forest) => [forest.id, forest]));
   const areaById = new Map(normalized.areas.map((area) => [area.id, area]));
+  const matchedFeedbacks = normalized.feedbacks.filter((feedback) =>
+    !feedback.archivedAt && [feedback.body, feedback.authorLabel].join(" ").toLowerCase().includes(q)
+  );
+  const feedbackTreeIds = new Set(matchedFeedbacks.map((feedback) => feedback.treeId));
+
   const treeMatches = normalized.trees.filter((tree) => {
     const forest = forestById.get(tree.forestId);
     const area = forest ? areaById.get(forest.areaId ?? DEFAULT_AREA_ID) : undefined;
     const treeNodes = getTreeNodes(normalized, tree.id);
-    return [
-      area?.title ?? "",
-      area?.description ?? "",
-      area?.tags.join(" ") ?? "",
-      tree.title,
-      tree.summary,
-      tree.tags.join(" "),
-      forest?.title ?? "",
-      forest?.description ?? "",
-      treeNodes.map((node) => `${node.title} ${node.body} ${node.tags.join(" ")} ${node.phase} ${node.authorName}`).join(" ")
-    ]
-      .join(" ")
-      .toLowerCase()
-      .includes(q);
+    const treeFeedbacks = getTreeFeedbacks(normalized, tree.id);
+    return (
+      feedbackTreeIds.has(tree.id) ||
+      [
+        area?.title ?? "",
+        area?.description ?? "",
+        area?.tags.join(" ") ?? "",
+        tree.title,
+        tree.summary,
+        tree.tags.join(" "),
+        forest?.title ?? "",
+        forest?.description ?? "",
+        treeNodes.map((node) => `${node.title} ${node.body} ${node.tags.join(" ")} ${node.phase} ${node.authorName}`).join(" "),
+        treeFeedbacks.map((feedback) => `${feedback.body} ${feedback.authorLabel}`).join(" ")
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(q)
+    );
   });
 
   const nodes = normalized.nodes.filter((node) =>
@@ -241,7 +266,7 @@ export function searchKnowledge(data: KnowledgeForestData, query: string) {
       .includes(q)
   );
 
-  return { trees: treeMatches, nodes };
+  return { trees: treeMatches, nodes, feedbacks: matchedFeedbacks };
 }
 
 export function addArea(
@@ -377,6 +402,53 @@ export function addNode(
     },
     node
   };
+}
+
+export function addFeedback(
+  data: KnowledgeForestData,
+  payload: {
+    treeId: string;
+    nodeId: string;
+    body: string;
+    authorLabel: string;
+  }
+) {
+  const normalized = normalizeKnowledgeForestData(data);
+  const now = new Date().toISOString();
+  const feedback: Feedback = {
+    id: createId("feedback"),
+    treeId: payload.treeId,
+    nodeId: payload.nodeId,
+    body: payload.body,
+    authorLabel: payload.authorLabel || "Local User",
+    createdAt: now,
+    updatedAt: now,
+    archivedAt: null
+  };
+
+  return {
+    nextData: {
+      ...normalized,
+      feedbacks: [feedback, ...normalized.feedbacks],
+      trees: normalized.trees.map((tree) =>
+        tree.id === payload.treeId ? { ...tree, updatedAt: now } : tree
+      )
+    },
+    feedback
+  };
+}
+
+export function branchFromFeedback(data: KnowledgeForestData, feedback: Feedback) {
+  const titleSource = feedback.body.replace(/\s+/g, " ").trim();
+  const title = titleSource.length > 32 ? `${titleSource.slice(0, 32)}...` : titleSource || "FeedbackからのBranch";
+  return addNode(data, {
+    treeId: feedback.treeId,
+    parentId: feedback.nodeId,
+    phase: "branch",
+    title,
+    body: feedback.body,
+    tags: ["Feedback", "Branch"]
+  });
 }
 
 export function addTreeWithSeed(

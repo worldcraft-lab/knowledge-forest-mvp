@@ -1,18 +1,18 @@
-# Knowledge Forest MVP v0.2.9
+# Knowledge Forest MVP v0.2.10
 
 Knowledge Forest is a local browser MVP for turning daily observations and improvement ideas into reusable operational knowledge.
 
-v0.2.9 is an onboarding and value-explanation release. It adds clearer in-app guidance for new testers: what the app is for, what becomes easier, how it differs from notes/chat/Notion, and what to try first.
+v0.2.10 is a Dashboard Slim / Guide Consolidation release. It reduces the amount of explanatory content on Dashboard, organizes Dashboard as a work-start page, and consolidates the detailed value explanation added in v0.2.9 into `/guide`.
 
-## What Changed In v0.2.9
+## What Changed In v0.2.10
 
-- Added a Dashboard card: `これは何のためのアプリ？`
-- Added `何が便利になる？` and comparison with memo/chat/Notion
-- Added a 5-minute tutorial on Dashboard
-- Added `/guide`
-- Added use-case cards for stores, events, student projects, and SNS operations
-- Improved sample Tree entry point
-- Added value explanations to Create, My Page, and empty Archive states
+- Slimmed Dashboard so it works as an entry point for action.
+- Kept short Dashboard links for sample Tree, Create, and Guide.
+- Moved detailed value explanation to `/guide`.
+- Moved memo/chat/Notion comparison to `/guide`.
+- Moved the 5-minute tutorial details to `/guide`.
+- Moved use-case sample details to `/guide`.
+- Kept Dashboard work cards such as recent Forests, recent Trees, Phase Counts, Archive, and Tree status links.
 
 ## Core Idea
 
@@ -20,10 +20,14 @@ Knowledge Forest is not just a post list or memo app.
 
 ```text
 Seed / 気づき
-→ Branch / 改善案
-→ Trial / 実践
-→ Sigma / 統合
-→ System / 制度化
+↓
+Branch / 改善案
+↓
+Trial / 実践
+↓
+Sigma / 統合
+↓
+System / 制度化
 ```
 
 The app helps users see how a small observation grows into an improvement, a practice result, an integrated template, and finally reusable operational knowledge.
@@ -40,8 +44,8 @@ Area
 
 ## Routes
 
-- `/` Dashboard and onboarding
-- `/guide` New tester guide
+- `/` Dashboard as the work-start page
+- `/guide` New tester guide and detailed explanation
 - `/forests` Area-grouped Forest list
 - `/forests/[forestId]` Forest detail
 - `/tree/[treeId]` React Flow Tree View, Node Growth Actions, Node Feedback, and Archive controls
@@ -86,18 +90,18 @@ knowledge-forest-mvp-v0.2
 
 This MVP stores data only in the current browser. It is not shared with other people or devices.
 
-## Manual Test Scenario v0.2.9
+## Manual Test Scenario v0.2.10
 
-1. Open Dashboard and confirm the app's purpose is understandable from `これは何のためのアプリ？`.
-2. Open `/guide`.
-3. Follow the 5-minute tutorial links.
-4. Open the sample Tree.
-5. Select a Seed and create a Branch or Trial from Node Growth Actions.
-6. Add Feedback.
-7. Convert Feedback into a Branch.
-8. Archive and Restore an item.
-9. Confirm Dashboard/Search/My Page still work.
-10. Give the URL to a first-time tester without explanation and check whether they understand what the app is for.
+1. Open Dashboard and confirm the information volume feels lighter than a manual page.
+2. Confirm Dashboard can open the sample Tree.
+3. Confirm Dashboard can navigate to Create.
+4. Confirm Dashboard can navigate to Guide.
+5. Open `/guide` and confirm it includes the value explanation, comparison with memo/chat/Notion, 5-minute tutorial, use-case samples, Archive / Restore explanation, and LocalStorage notes.
+6. Open the sample Tree and confirm existing Tree View, Node Growth Actions, Feedback, Feedback-to-Branch, and Archive controls still work.
+7. Create a new Forest, Tree, Node, and Feedback.
+8. Confirm Dashboard recent Forests / recent Trees / Phase Counts reflect normal LocalStorage data.
+9. Archive and Restore an item from `/archive`.
+10. Reload the browser and confirm LocalStorage data remains.
 
 ## Tester Notes
 

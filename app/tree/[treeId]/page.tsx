@@ -10,11 +10,14 @@ import { PhaseBadge } from "@/components/PhaseBadge";
 import {
   addFeedback,
   addNode,
+  archiveItem,
   branchFromFeedback,
   formatDate,
+  getArchivedTreeNodes,
   getForestArea,
   getNodeFeedbacks,
   getTreeNodes,
+  isArchived,
   phaseLabels,
   phaseNodeColors,
   phaseOrder,
@@ -30,7 +33,9 @@ export default function TreeDetailPage() {
   const { data, setData } = useKnowledgeForestData();
   const tree = data.trees.find((item) => item.id === params.treeId);
   const [selectedId, setSelectedId] = useState<string | null>(focusedNodeId);
+  const [showArchivedNodes, setShowArchivedNodes] = useState(false);
   const treeNodes = useMemo(() => (tree ? getTreeNodes(data, tree.id) : []), [data, tree]);
+  const archivedTreeNodes = useMemo(() => (tree ? getArchivedTreeNodes(data, tree.id) : []), [data, tree]);
   const feedbackCounts = useMemo(
     () => new Map(treeNodes.map((node) => [node.id, getNodeFeedbacks(data, node.id).length])),
     [data, treeNodes]
@@ -49,7 +54,8 @@ export default function TreeDetailPage() {
     );
   }
 
-  const forest = data.forests.find((item) => item.id === tree.forestId);
+  const currentTree = tree;
+  const forest = data.forests.find((item) => item.id === currentTree.forestId);
   const area = forest ? getForestArea(data, forest) : null;
   const selectedNode = treeNodes.find((node) => node.id === selectedId) ?? treeNodes[0];
   const selectedFeedbacks = selectedNode ? getNodeFeedbacks(data, selectedNode.id) : [];
@@ -90,6 +96,33 @@ export default function TreeDetailPage() {
     setSelectedId(result.node.id);
   }
 
+  function handleArchiveTree() {
+    if (!window.confirm("このTreeをArchiveします。通常表示から隠れますが、データは保持され、後からRestoreできます。")) return;
+    const nextData = archiveItem(data, "tree", currentTree.id, "Tree archived");
+    saveKnowledgeForestData(nextData);
+    setData(nextData);
+  }
+
+  function handleArchiveNode() {
+    if (!selectedNode) return;
+    const hasChildren = data.nodes.some((node) => node.parentId === selectedNode.id && !isArchived(node));
+    const message = hasChildren
+      ? "このNodeには子Nodeがあります。Archiveすると、その枝も通常表示から隠れます。"
+      : "このNodeをArchiveします。通常表示から隠れますが、データは保持され、後からRestoreできます。";
+    if (!window.confirm(message)) return;
+    const nextData = archiveItem(data, "node", selectedNode.id, "Node archived");
+    saveKnowledgeForestData(nextData);
+    setData(nextData);
+    setSelectedId(null);
+  }
+
+  function handleArchiveFeedback(feedback: Feedback) {
+    if (!window.confirm("このFeedbackをArchiveします。通常表示から隠れますが、データは保持され、後からRestoreできます。")) return;
+    const nextData = archiveItem(data, "feedback", feedback.id, "Feedback archived");
+    saveKnowledgeForestData(nextData);
+    setData(nextData);
+  }
+
   if (treeNodes.length === 0) {
     return (
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft sm:p-7">
@@ -99,9 +132,9 @@ export default function TreeDetailPage() {
             {forest ? `${forest.title}へ戻る` : "Forestへ戻る"}
           </Link>
           <span>/</span>
-          <span>{tree.title}</span>
+          <span>{currentTree.title}</span>
         </div>
-        <h2 className="text-2xl font-bold text-forest-ink">{tree.title}</h2>
+        <h2 className="text-2xl font-bold text-forest-ink">{currentTree.title}</h2>
         <p className="mt-3 text-sm leading-6 text-slate-600">
           このTreeにはまだNodeがありません。最初のSeedを追加して、知識の成長を始めましょう。
         </p>
@@ -136,13 +169,21 @@ export default function TreeDetailPage() {
                 <span>/</span>
               </>
             )}
-            <span>{tree.title}</span>
+            <span>{currentTree.title}</span>
           </div>
           <p className="text-sm font-bold text-emerald-700">
             {area ? `${area.title} / ` : ""}{forest?.title ?? "Forest"}
           </p>
-          <h2 className="mt-1 text-xl font-bold text-forest-ink">{tree.title}</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-500">{tree.summary}</p>
+          <h2 className="mt-1 text-xl font-bold text-forest-ink">{currentTree.title}</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-500">{currentTree.summary}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700" onClick={handleArchiveTree} type="button">
+              Archive Tree
+            </button>
+            <Link className="rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-600" href="/archive">
+              Archived Items
+            </Link>
+          </div>
           <div className="mt-3 flex flex-wrap gap-2">
             {phaseOrder.map((phase) => (
               <PhaseBadge key={phase} phase={phase} compact />
@@ -173,9 +214,18 @@ export default function TreeDetailPage() {
         onAddFeedback={handleAddFeedback}
         onBranchFromFeedback={handleBranchFromFeedback}
         onGrowNode={handleGrowNode}
+        onArchiveNode={handleArchiveNode}
+        onArchiveFeedback={handleArchiveFeedback}
+        hasChildNodes={Boolean(selectedNode && data.nodes.some((node) => node.parentId === selectedNode.id && !isArchived(node)))}
       />
       <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-soft xl:col-span-2">
-        <h3 className="mb-3 text-lg font-bold text-forest-ink">Tree Nodes</h3>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-lg font-bold text-forest-ink">Tree Nodes</h3>
+          <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
+            <input checked={showArchivedNodes} onChange={(event) => setShowArchivedNodes(event.target.checked)} type="checkbox" />
+            Archived Nodeを表示
+          </label>
+        </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {treeNodes.map((node) => (
             <button
@@ -195,6 +245,18 @@ export default function TreeDetailPage() {
             </button>
           ))}
         </div>
+        {showArchivedNodes && (
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {archivedTreeNodes.map((node) => (
+              <div key={node.id} className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 opacity-70">
+                <PhaseBadge phase={node.phase} compact />
+                <h4 className="mt-3 text-sm font-bold leading-6 text-slate-600">{node.title}</h4>
+                <p className="mt-2 text-xs text-slate-500">Archived {node.archivedAt ? formatDate(node.archivedAt) : ""}</p>
+              </div>
+            ))}
+            {archivedTreeNodes.length === 0 && <p className="rounded-lg bg-slate-50 p-4 text-sm text-slate-500">Archived Nodeはありません。</p>}
+          </div>
+        )}
       </section>
     </div>
   );

@@ -25,7 +25,8 @@ export default function DashboardPage() {
               AreaからForestを束ね、気づきを再利用できる運用知へ育てる。
             </h2>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-              v0.2.7では、Node詳細から直接Branch / Trial / Sigma / Systemを追加できるNode Growth Actionsを追加しました。
+              v0.2.8では、削除ではなくArchive / Restoreで知識を整理できます。
+              Archive済みは通常集計から除外しています。
               Forestが増えても、IT、日常、店舗運営、StoSなどの知識領域ごとに整理できます。
               System化は人の評価ではなく、再利用可能な運用知への到達として扱います。
             </p>

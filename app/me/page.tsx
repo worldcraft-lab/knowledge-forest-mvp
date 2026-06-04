@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, User } from "lucide-react";
 import { PhaseBadge } from "@/components/PhaseBadge";
-import { getTreeNodes, hasPhase, phaseOrder, useKnowledgeForestData } from "@/lib/v02-store";
+import { getTreeNodes, getVisibleData, hasPhase, phaseOrder, useKnowledgeForestData } from "@/lib/v02-store";
 import { Phase } from "@/lib/v02-types";
 
 const tendencyComments: Record<Phase, string> = {
@@ -16,19 +16,20 @@ const tendencyComments: Record<Phase, string> = {
 
 export default function MePage() {
   const { data } = useKnowledgeForestData();
-  const myNodes = data.nodes.filter((node) => node.authorName === "あなた");
-  const visibleNodes = myNodes.length ? myNodes : data.nodes;
-  const feedbackCount = data.feedbacks.filter((feedback) => !feedback.archivedAt).length;
+  const visibleData = getVisibleData(data);
+  const myNodes = visibleData.nodes.filter((node) => node.authorName === "あなた");
+  const visibleNodes = myNodes.length ? myNodes : visibleData.nodes;
+  const feedbackCount = visibleData.feedbacks.length;
   const counts = Object.fromEntries(
     phaseOrder.map((phase) => [phase, visibleNodes.filter((node) => node.phase === phase).length])
   ) as Record<Phase, number>;
   const topPhase = [...phaseOrder].sort((a, b) => counts[b] - counts[a])[0];
-  const systemCandidate = data.trees.find((tree) => {
-    const nodes = getTreeNodes(data, tree.id);
+  const systemCandidate = visibleData.trees.find((tree) => {
+    const nodes = getTreeNodes(visibleData, tree.id);
     return hasPhase(nodes, "sigma") && !hasPhase(nodes, "system");
   });
-  const trialWaiting = data.trees.find((tree) => {
-    const nodes = getTreeNodes(data, tree.id);
+  const trialWaiting = visibleData.trees.find((tree) => {
+    const nodes = getTreeNodes(visibleData, tree.id);
     return hasPhase(nodes, "branch") && !hasPhase(nodes, "trial");
   });
 

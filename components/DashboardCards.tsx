@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, Flag, GitBranch, Layers3, Map, Sigma, Trees, Workflow } from "lucide-react";
+import { AlertTriangle, ArrowRight, Flag, GitBranch, Layers3, Map, MessageSquare, Sigma, Trees, Workflow } from "lucide-react";
 import { DashboardMetrics } from "@/lib/v02-types";
 
 export function DashboardCards({ metrics }: { metrics: DashboardMetrics }) {
@@ -8,6 +8,7 @@ export function DashboardCards({ metrics }: { metrics: DashboardMetrics }) {
     { label: "Total Forests", value: metrics.totalForests, href: "/forests", icon: Trees, color: "text-emerald-700 bg-emerald-100" },
     { label: "Total Trees", value: metrics.totalTrees, href: "/search?scope=trees", icon: GitBranch, color: "text-blue-700 bg-blue-100" },
     { label: "Total Nodes", value: metrics.totalNodes, href: "/search?scope=nodes", icon: Layers3, color: "text-orange-700 bg-orange-100" },
+    { label: "Total Feedbacks", value: metrics.totalFeedbacks, href: "/search?scope=nodes", icon: MessageSquare, color: "text-emerald-700 bg-emerald-100" },
     { label: "Sigma到達率", value: `${metrics.sigmaArrivalRate}%`, href: "/search?phase=sigma", icon: Sigma, color: "text-fuchsia-700 bg-fuchsia-100" },
     { label: "System化率", value: `${metrics.systemizationRate}%`, href: "/search?phase=system", icon: Workflow, color: "text-slate-700 bg-slate-100" },
     { label: "System化候補", value: metrics.systemCandidates.length, href: "/search?status=system-candidate", icon: Flag, color: "text-emerald-700 bg-emerald-100" },

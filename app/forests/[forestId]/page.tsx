@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ChevronLeft, Plus } from "lucide-react";
 import { TreeCard } from "@/components/TreeCard";
-import { getForestArea, getForestTrees, useKnowledgeForestData } from "@/lib/v02-store";
+import { archiveItem, getForestArea, getForestTrees, saveKnowledgeForestData, useKnowledgeForestData } from "@/lib/v02-store";
 
 export default function ForestDetailPage() {
   const params = useParams<{ forestId: string }>();
-  const { data } = useKnowledgeForestData();
+  const { data, setData } = useKnowledgeForestData();
   const forest = data.forests.find((item) => item.id === params.forestId);
 
   if (!forest) {
@@ -23,8 +23,16 @@ export default function ForestDetailPage() {
     );
   }
 
-  const trees = getForestTrees(data, forest.id);
-  const area = getForestArea(data, forest);
+  const currentForest = forest;
+  const trees = getForestTrees(data, currentForest.id);
+  const area = getForestArea(data, currentForest);
+
+  function archiveForest() {
+    if (!window.confirm("このForestをArchiveします。通常表示から隠れ、配下のTree / Node / Feedbackも通常表示から隠れます。データは保持され、後からRestoreできます。")) return;
+    const nextData = archiveItem(data, "forest", currentForest.id, "Forest archived");
+    saveKnowledgeForestData(nextData);
+    setData(nextData);
+  }
 
   return (
     <div className="space-y-5">
@@ -39,30 +47,37 @@ export default function ForestDetailPage() {
           <span>/</span>
           <span>{area.title}</span>
           <span>/</span>
-          <span>{forest.title}</span>
+          <span>{currentForest.title}</span>
         </div>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-sm font-bold text-emerald-700">Area / Forest</p>
             <p className="mt-1 text-xs font-bold uppercase text-teal-700">{area.title}</p>
-            <h2 className="mt-1 text-2xl font-bold text-forest-ink">{forest.title}</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{forest.description}</p>
+            <h2 className="mt-1 text-2xl font-bold text-forest-ink">{currentForest.title}</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{currentForest.description}</p>
             <p className="mt-2 text-xs font-semibold text-slate-500">
-              {forest.ownerLabel} / {forest.visibility ?? "private"}
+              {currentForest.ownerLabel} / {currentForest.visibility ?? "private"}
             </p>
           </div>
-          <Link
-            className="flex items-center gap-2 rounded-lg bg-forest-ink px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-700 active:scale-[0.99]"
-            href={`/create?forestId=${forest.id}`}
-            aria-label={`${forest.title}にTreeを作成する`}
-            title={`${forest.title}にTreeを作成する`}
-          >
-            <Plus className="h-4 w-4" />
-            Treeを作成する
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              className="flex items-center gap-2 rounded-lg bg-forest-ink px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-700 active:scale-[0.99]"
+              href={`/create?forestId=${currentForest.id}`}
+            >
+              <Plus className="h-4 w-4" />
+              Treeを作成する
+            </Link>
+            <button
+              className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700 transition hover:bg-rose-100 active:scale-[0.99]"
+              onClick={archiveForest}
+              type="button"
+            >
+              Archive Forest
+            </button>
+          </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          {forest.tags.map((tag) => (
+          {currentForest.tags.map((tag) => (
             <span key={tag} className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">
               {tag}
             </span>
@@ -82,7 +97,7 @@ export default function ForestDetailPage() {
             最初のTreeを作成して、知識の成長を始めましょう。
           </p>
           <Link
-            href={`/create?forestId=${forest.id}`}
+            href={`/create?forestId=${currentForest.id}`}
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-forest-ink px-4 py-3 text-sm font-bold text-white"
           >
             <Plus className="h-4 w-4" />

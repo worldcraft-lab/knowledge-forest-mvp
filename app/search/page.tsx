@@ -7,6 +7,7 @@ import { ChevronLeft, Search } from "lucide-react";
 import { SearchResults } from "@/components/SearchResults";
 import {
   getTreeNodes,
+  getVisibleData,
   hasPhase,
   phaseLabels,
   searchKnowledge,
@@ -26,6 +27,7 @@ export default function SearchPage() {
 
 function SearchPageContent() {
   const { data } = useKnowledgeForestData();
+  const visibleData = getVisibleData(data);
   const searchParams = useSearchParams();
   const phase = searchParams.get("phase") as Phase | null;
   const status = searchParams.get("status");
@@ -35,8 +37,8 @@ function SearchPageContent() {
   const results = useMemo(() => searchKnowledge(data, query), [data, query]);
 
   const filteredByParams = useMemo(() => {
-    let trees = [...data.trees];
-    let nodes = [...data.nodes];
+    let trees = [...visibleData.trees];
+    let nodes = [...visibleData.nodes];
 
     if (phase && validPhases.includes(phase)) {
       nodes = nodes.filter((node) => node.phase === phase);
@@ -46,7 +48,7 @@ function SearchPageContent() {
 
     if (status === "system-candidate") {
       trees = trees.filter((tree) => {
-        const treeNodes = getTreeNodes(data, tree.id);
+        const treeNodes = getTreeNodes(visibleData, tree.id);
         return hasPhase(treeNodes, "sigma") && !hasPhase(treeNodes, "system");
       });
       const treeIds = new Set(trees.map((tree) => tree.id));
@@ -55,7 +57,7 @@ function SearchPageContent() {
 
     if (status === "stalled" || status === "trial-waiting") {
       trees = trees.filter((tree) => {
-        const treeNodes = getTreeNodes(data, tree.id);
+        const treeNodes = getTreeNodes(visibleData, tree.id);
         const age = Date.now() - new Date(tree.updatedAt).getTime();
         return age > 6 * 24 * 60 * 60 * 1000 && !hasPhase(treeNodes, "trial");
       });
@@ -64,21 +66,21 @@ function SearchPageContent() {
     }
 
     if (scope === "trees") nodes = [];
-    if (scope === "nodes") trees = data.trees.filter((tree) => nodes.some((node) => node.treeId === tree.id));
+    if (scope === "nodes") trees = visibleData.trees.filter((tree) => nodes.some((node) => node.treeId === tree.id));
 
     return { trees, nodes };
-  }, [data, phase, scope, status]);
+  }, [visibleData, phase, scope, status]);
 
   const initialTrees = useMemo(() => {
-    return [...data.trees].sort((a, b) => {
-      const aNodes = getTreeNodes(data, a.id);
-      const bNodes = getTreeNodes(data, b.id);
+    return [...visibleData.trees].sort((a, b) => {
+      const aNodes = getTreeNodes(visibleData, a.id);
+      const bNodes = getTreeNodes(visibleData, b.id);
       const aReadyForSystem = hasPhase(aNodes, "sigma") && !hasPhase(aNodes, "system") ? 1 : 0;
       const bReadyForSystem = hasPhase(bNodes, "sigma") && !hasPhase(bNodes, "system") ? 1 : 0;
       if (aReadyForSystem !== bReadyForSystem) return bReadyForSystem - aReadyForSystem;
       return +new Date(b.updatedAt) - +new Date(a.updatedAt);
     });
-  }, [data]);
+  }, [visibleData]);
 
   const hasParamFilter = Boolean(phase || status || scope);
   const visibleTrees = trimmedQuery ? results.trees : hasParamFilter ? filteredByParams.trees : initialTrees;
@@ -111,9 +113,10 @@ function SearchPageContent() {
       </div>
       <div className="mt-4 rounded-lg bg-forest-mist p-4 text-sm leading-6 text-slate-600">
         {description}
+        <p className="mt-2 text-xs font-semibold text-slate-500">Archive済みの項目は通常検索には含まれません。Archive済みは /archive で確認できます。</p>
       </div>
       <div className="mt-6">
-        <SearchResults data={data} trees={visibleTrees} nodes={visibleNodes} feedbacks={visibleFeedbacks} />
+        <SearchResults data={visibleData} trees={visibleTrees} nodes={visibleNodes} feedbacks={visibleFeedbacks} />
       </div>
     </section>
   );

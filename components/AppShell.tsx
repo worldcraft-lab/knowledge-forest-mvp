@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type React from "react";
-import { Bell, Compass, Home, Leaf, Plus, Search, User } from "lucide-react";
+import { Archive, Bell, Compass, Home, Leaf, Plus, Search, User } from "lucide-react";
 import { KnowledgeFlow } from "./KnowledgeFlow";
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { href: "/forests", label: "Forests", icon: Compass },
   { href: "/create", label: "Create", icon: Plus },
   { href: "/search", label: "Search", icon: Search },
+  { href: "/archive", label: "Archive", icon: Archive },
   { href: "/notifications", label: "Notice", icon: Bell },
   { href: "/me", label: "Me", icon: User }
 ];
@@ -63,7 +64,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_24px_rgba(38,50,63,0.08)] backdrop-blur lg:hidden">
-        <div className="mx-auto grid max-w-lg grid-cols-6 gap-1">
+        <div className="mx-auto grid max-w-lg grid-cols-7 gap-1">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -88,7 +89,7 @@ function Brand() {
       </div>
       <div>
         <p className="text-sm font-semibold text-slate-500">Knowledge Forest</p>
-        <h1 className="text-xl font-bold tracking-normal text-forest-ink">MVP v0.2.7</h1>
+        <h1 className="text-xl font-bold tracking-normal text-forest-ink">MVP v0.2.8</h1>
       </div>
     </Link>
   );

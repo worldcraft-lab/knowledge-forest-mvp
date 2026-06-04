@@ -21,13 +21,19 @@ export function NodeDetailPanel({
   feedbacks,
   onAddFeedback,
   onBranchFromFeedback,
-  onGrowNode
+  onGrowNode,
+  onArchiveNode,
+  onArchiveFeedback,
+  hasChildNodes
 }: {
   node?: KnowledgeNode;
   feedbacks: Feedback[];
   onAddFeedback: (payload: { body: string; authorLabel: string }) => void;
   onBranchFromFeedback: (feedback: Feedback) => void;
   onGrowNode: (payload: { phase: Phase; title: string; body: string; tags: string[]; authorName: string }) => void;
+  onArchiveNode: () => void;
+  onArchiveFeedback: (feedback: Feedback) => void;
+  hasChildNodes: boolean;
 }) {
   const [feedbackBody, setFeedbackBody] = useState("");
   const [feedbackAuthorLabel, setFeedbackAuthorLabel] = useState("");
@@ -106,6 +112,14 @@ export function NodeDetailPanel({
         <Info label="投稿日" value={formatDate(node.createdAt)} />
         <Info label="Feedback" value={`${feedbacks.length}`} />
       </dl>
+      <button
+        className="mt-4 w-full rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700 transition hover:bg-rose-100 active:scale-[0.99]"
+        onClick={onArchiveNode}
+        title={hasChildNodes ? "このNodeには子Nodeがあります。Archiveすると、その枝も通常表示から隠れます。" : "このNodeをArchiveします。"}
+        type="button"
+      >
+        Archive Node
+      </button>
 
       <section className="mt-6 border-t border-slate-200 pt-5">
         <h3 className="flex items-center gap-2 text-lg font-bold text-forest-ink">
@@ -224,6 +238,13 @@ export function NodeDetailPanel({
               >
                 <GitBranch className="h-4 w-4" />
                 Branchとして切り出す
+              </button>
+              <button
+                className="ml-2 mt-3 inline-flex items-center gap-2 rounded-md border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50 active:scale-[0.99]"
+                onClick={() => onArchiveFeedback(feedback)}
+                type="button"
+              >
+                Archive Feedback
               </button>
             </article>
           ))}

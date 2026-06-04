@@ -9,6 +9,7 @@ import { NodeDetailPanel } from "@/components/NodeDetailPanel";
 import { PhaseBadge } from "@/components/PhaseBadge";
 import {
   addFeedback,
+  addNode,
   branchFromFeedback,
   formatDate,
   getForestArea,
@@ -20,7 +21,7 @@ import {
   saveKnowledgeForestData,
   useKnowledgeForestData
 } from "@/lib/v02-store";
-import { Feedback } from "@/lib/v02-types";
+import { Feedback, Phase } from "@/lib/v02-types";
 
 export default function TreeDetailPage() {
   const params = useParams<{ treeId: string }>();
@@ -68,6 +69,22 @@ export default function TreeDetailPage() {
 
   function handleBranchFromFeedback(feedback: Feedback) {
     const result = branchFromFeedback(data, feedback);
+    saveKnowledgeForestData(result.nextData);
+    setData(result.nextData);
+    setSelectedId(result.node.id);
+  }
+
+  function handleGrowNode(payload: { phase: Phase; title: string; body: string; tags: string[]; authorName: string }) {
+    if (!selectedNode) return;
+    const result = addNode(data, {
+      treeId: selectedNode.treeId,
+      parentId: selectedNode.id,
+      phase: payload.phase,
+      title: payload.title,
+      body: payload.body,
+      tags: payload.tags,
+      authorName: payload.authorName
+    });
     saveKnowledgeForestData(result.nextData);
     setData(result.nextData);
     setSelectedId(result.node.id);
@@ -155,6 +172,7 @@ export default function TreeDetailPage() {
         feedbacks={selectedFeedbacks}
         onAddFeedback={handleAddFeedback}
         onBranchFromFeedback={handleBranchFromFeedback}
+        onGrowNode={handleGrowNode}
       />
       <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-soft xl:col-span-2">
         <h3 className="mb-3 text-lg font-bold text-forest-ink">Tree Nodes</h3>

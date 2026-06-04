@@ -374,6 +374,7 @@ export function addNode(
     title: string;
     body: string;
     tags: string[];
+    authorName?: string;
   }
 ) {
   const normalized = normalizeKnowledgeForestData(data);
@@ -386,7 +387,7 @@ export function addNode(
     title: payload.title,
     body: payload.body,
     tags: payload.tags,
-    authorName: "あなた",
+    authorName: payload.authorName?.trim() || "あなた",
     createdAt: now,
     helpfulCount: 0,
     commentCount: 0

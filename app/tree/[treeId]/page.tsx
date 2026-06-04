@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { Background, Controls, Edge, MarkerType, MiniMap, Node, ReactFlow } from "@xyflow/react";
-import { ChevronLeft, Plus } from "lucide-react";
+import { Background, Controls, Edge, MarkerType, MiniMap, Node as FlowNode, ReactFlow } from "@xyflow/react";
+import { ChevronLeft, LayoutList, Map as MapIcon, Plus } from "lucide-react";
 import { NodeDetailPanel } from "@/components/NodeDetailPanel";
 import { PhaseBadge } from "@/components/PhaseBadge";
 import {
@@ -24,7 +24,9 @@ import {
   saveKnowledgeForestData,
   useKnowledgeForestData
 } from "@/lib/v02-store";
-import { Feedback, Phase } from "@/lib/v02-types";
+import { Feedback, KnowledgeForestData, KnowledgeNode, Phase } from "@/lib/v02-types";
+
+type ViewMode = "timeline" | "map";
 
 export default function TreeDetailPage() {
   const params = useParams<{ treeId: string }>();
@@ -34,11 +36,29 @@ export default function TreeDetailPage() {
   const tree = data.trees.find((item) => item.id === params.treeId);
   const [selectedId, setSelectedId] = useState<string | null>(focusedNodeId);
   const [showArchivedNodes, setShowArchivedNodes] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("map");
+  const [viewModeTouched, setViewModeTouched] = useState(false);
+
+  useEffect(() => {
+    if (viewModeTouched) return;
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    setViewMode(mediaQuery.matches ? "timeline" : "map");
+  }, [viewModeTouched]);
+
   const treeNodes = useMemo(() => (tree ? getTreeNodes(data, tree.id) : []), [data, tree]);
   const archivedTreeNodes = useMemo(() => (tree ? getArchivedTreeNodes(data, tree.id) : []), [data, tree]);
+  const timelineNodes = useMemo(
+    () => (showArchivedNodes ? [...treeNodes, ...archivedTreeNodes] : treeNodes),
+    [archivedTreeNodes, showArchivedNodes, treeNodes]
+  );
+  const detailNodes = showArchivedNodes ? timelineNodes : treeNodes;
   const feedbackCounts = useMemo(
     () => new Map(treeNodes.map((node) => [node.id, getNodeFeedbacks(data, node.id).length])),
     [data, treeNodes]
+  );
+  const timelineFeedbackCounts = useMemo(
+    () => new Map(timelineNodes.map((node) => [node.id, countActiveFeedbacks(data, node.id)])),
+    [data, timelineNodes]
   );
   const flow = useMemo(() => buildFlow(treeNodes, feedbackCounts), [treeNodes, feedbackCounts]);
 
@@ -57,9 +77,14 @@ export default function TreeDetailPage() {
   const currentTree = tree;
   const forest = data.forests.find((item) => item.id === currentTree.forestId);
   const area = forest ? getForestArea(data, forest) : null;
-  const selectedNode = treeNodes.find((node) => node.id === selectedId) ?? treeNodes[0];
+  const selectedNode = detailNodes.find((node) => node.id === selectedId) ?? treeNodes[0];
   const selectedFeedbacks = selectedNode ? getNodeFeedbacks(data, selectedNode.id) : [];
   const forestHref = forest ? `/forests/${forest.id}` : "/forests";
+
+  function handleViewModeChange(nextMode: ViewMode) {
+    setViewMode(nextMode);
+    setViewModeTouched(true);
+  }
 
   function handleAddFeedback(payload: { body: string; authorLabel: string }) {
     if (!selectedNode) return;
@@ -107,7 +132,7 @@ export default function TreeDetailPage() {
     if (!selectedNode) return;
     const hasChildren = data.nodes.some((node) => node.parentId === selectedNode.id && !isArchived(node));
     const message = hasChildren
-      ? "このNodeには子Nodeがあります。Archiveすると、その枝も通常表示から隠れます。"
+      ? "このNodeには子Nodeがあります。Archiveすると、その枝も通常表示から隠れます。データは保持され、後からRestoreできます。"
       : "このNodeをArchiveします。通常表示から隠れますが、データは保持され、後からRestoreできます。";
     if (!window.confirm(message)) return;
     const nextData = archiveItem(data, "node", selectedNode.id, "Node archived");
@@ -189,25 +214,31 @@ export default function TreeDetailPage() {
               <PhaseBadge key={phase} phase={phase} compact />
             ))}
           </div>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="grid grid-cols-2 rounded-lg border border-slate-200 bg-slate-50 p-1">
+              <ModeButton active={viewMode === "timeline"} icon={<LayoutList className="h-4 w-4" />} label="Timeline" onClick={() => handleViewModeChange("timeline")} />
+              <ModeButton active={viewMode === "map"} icon={<MapIcon className="h-4 w-4" />} label="Map" onClick={() => handleViewModeChange("map")} />
+            </div>
+            <label className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs font-bold text-slate-600">
+              <input checked={showArchivedNodes} onChange={(event) => setShowArchivedNodes(event.target.checked)} type="checkbox" />
+              Archived Nodeを表示
+            </label>
+          </div>
         </div>
-        <div className="h-[64vh] min-h-[520px] w-full bg-gradient-to-b from-white to-forest-mist/50 sm:h-[72vh] lg:min-h-[600px]">
-          <ReactFlow
-            nodes={flow.nodes}
-            edges={flow.edges}
-            fitView
-            fitViewOptions={{ padding: 0.24, includeHiddenNodes: false, minZoom: 0.45, maxZoom: 1.05 }}
-            minZoom={0.22}
-            maxZoom={1.45}
-            onNodeClick={(_, node) => setSelectedId(node.id)}
-            nodesDraggable={false}
-            proOptions={{ hideAttribution: true }}
-          >
-            <Background color="#dbeafe" gap={18} />
-            <Controls />
-            <MiniMap nodeStrokeWidth={3} zoomable pannable />
-          </ReactFlow>
-        </div>
+
+        {viewMode === "timeline" ? (
+          <TimelineView
+            data={data}
+            feedbackCounts={timelineFeedbackCounts}
+            nodes={timelineNodes}
+            onSelect={setSelectedId}
+            selectedId={selectedNode?.id ?? null}
+          />
+        ) : (
+          <MapView flow={flow} onSelect={setSelectedId} />
+        )}
       </section>
+
       <NodeDetailPanel
         node={selectedNode}
         feedbacks={selectedFeedbacks}
@@ -218,6 +249,7 @@ export default function TreeDetailPage() {
         onArchiveFeedback={handleArchiveFeedback}
         hasChildNodes={Boolean(selectedNode && data.nodes.some((node) => node.parentId === selectedNode.id && !isArchived(node)))}
       />
+
       <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-soft xl:col-span-2">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-lg font-bold text-forest-ink">Tree Nodes</h3>
@@ -230,7 +262,9 @@ export default function TreeDetailPage() {
           {treeNodes.map((node) => (
             <button
               key={node.id}
-              className="rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-blue-200 hover:bg-blue-50 active:scale-[0.99]"
+              className={`rounded-lg border bg-white p-4 text-left shadow-sm transition hover:border-blue-200 hover:bg-blue-50 active:scale-[0.99] ${
+                selectedNode?.id === node.id ? "border-blue-300 ring-2 ring-blue-100" : "border-slate-200"
+              }`}
               onClick={() => setSelectedId(node.id)}
               type="button"
             >
@@ -248,11 +282,18 @@ export default function TreeDetailPage() {
         {showArchivedNodes && (
           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {archivedTreeNodes.map((node) => (
-              <div key={node.id} className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 opacity-70">
+              <button
+                key={node.id}
+                className={`rounded-lg border border-dashed bg-slate-50 p-4 text-left opacity-70 transition hover:border-slate-300 active:scale-[0.99] ${
+                  selectedNode?.id === node.id ? "border-blue-300 ring-2 ring-blue-100" : "border-slate-200"
+                }`}
+                onClick={() => setSelectedId(node.id)}
+                type="button"
+              >
                 <PhaseBadge phase={node.phase} compact />
                 <h4 className="mt-3 text-sm font-bold leading-6 text-slate-600">{node.title}</h4>
                 <p className="mt-2 text-xs text-slate-500">Archived {node.archivedAt ? formatDate(node.archivedAt) : ""}</p>
-              </div>
+              </button>
             ))}
             {archivedTreeNodes.length === 0 && <p className="rounded-lg bg-slate-50 p-4 text-sm text-slate-500">Archived Nodeはありません。</p>}
           </div>
@@ -262,9 +303,147 @@ export default function TreeDetailPage() {
   );
 }
 
-function buildFlow(items: ReturnType<typeof getTreeNodes>, feedbackCounts: Map<string, number>): { nodes: Node[]; edges: Edge[] } {
+function ModeButton({ active, icon, label, onClick }: { active: boolean; icon: React.ReactNode; label: string; onClick: () => void }) {
+  return (
+    <button
+      className={`inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-bold transition ${
+        active ? "bg-white text-forest-ink shadow-sm" : "text-slate-500 hover:text-blue-700"
+      }`}
+      onClick={onClick}
+      type="button"
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+function TimelineView({
+  data,
+  feedbackCounts,
+  nodes,
+  onSelect,
+  selectedId
+}: {
+  data: KnowledgeForestData;
+  feedbackCounts: Map<string, number>;
+  nodes: KnowledgeNode[];
+  onSelect: (id: string) => void;
+  selectedId: string | null;
+}) {
+  return (
+    <div className="space-y-5 bg-gradient-to-b from-white to-forest-mist/50 p-4">
+      <p className="rounded-lg bg-blue-50 p-3 text-sm leading-6 text-blue-900">
+        Timeline Viewはスマホで読みやすい縦型表示です。Nodeをタップすると詳細・Feedback・Growth Actionsが更新されます。
+      </p>
+      {phaseOrder.map((phase) => {
+        const phaseNodes = nodes.filter((node) => node.phase === phase);
+        if (phaseNodes.length === 0) return null;
+        return (
+          <section key={phase} className="space-y-3">
+            <div className="flex items-center gap-3">
+              <PhaseBadge phase={phase} />
+              <span className="text-xs font-bold text-slate-400">{phaseNodes.length} Nodes</span>
+            </div>
+            <div className="space-y-3">
+              {phaseNodes.map((node) => (
+                <TimelineNodeCard
+                  key={node.id}
+                  childCount={countActiveChildren(data, node.id)}
+                  feedbackCount={feedbackCounts.get(node.id) ?? 0}
+                  node={node}
+                  onSelect={onSelect}
+                  parentTitle={getParentTitle(data, node)}
+                  selected={selectedId === node.id}
+                />
+              ))}
+            </div>
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
+function TimelineNodeCard({
+  childCount,
+  feedbackCount,
+  node,
+  onSelect,
+  parentTitle,
+  selected
+}: {
+  childCount: number;
+  feedbackCount: number;
+  node: KnowledgeNode;
+  onSelect: (id: string) => void;
+  parentTitle: string | null;
+  selected: boolean;
+}) {
+  const archived = isArchived(node);
+  return (
+    <button
+      className={`w-full rounded-lg border p-4 text-left shadow-sm transition active:scale-[0.99] ${
+        selected ? "border-blue-300 bg-blue-50 ring-2 ring-blue-100" : "border-slate-200 bg-white hover:border-blue-200 hover:bg-blue-50"
+      } ${archived ? "border-dashed opacity-60" : ""}`}
+      onClick={() => onSelect(node.id)}
+      type="button"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <PhaseBadge phase={node.phase} compact />
+        {archived && <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Archived</span>}
+      </div>
+      <h3 className="mt-3 text-base font-bold leading-7 text-forest-ink">{node.title}</h3>
+      <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{node.body}</p>
+      {node.tags.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {node.tags.slice(0, 5).map((tag) => (
+            <span key={tag} className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="mt-3 grid gap-2 text-xs font-bold text-slate-500 sm:grid-cols-2">
+        <span>Feedback {feedbackCount}</span>
+        <span>Children {childCount}</span>
+        <span>{formatDate(node.createdAt)}</span>
+        <span>{parentTitle ? `Parent: ${parentTitle}` : "Parent: Root"}</span>
+      </div>
+    </button>
+  );
+}
+
+function MapView({ flow, onSelect }: { flow: { nodes: FlowNode[]; edges: Edge[] }; onSelect: (id: string) => void }) {
+  return (
+    <>
+      <p className="border-b border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-900 md:hidden">
+        Map Viewは全体構造を見るための表示です。スマホではTimeline Viewの方が読みやすい場合があります。
+      </p>
+      <div className="h-[64vh] min-h-[520px] w-full bg-gradient-to-b from-white to-forest-mist/50 sm:h-[72vh] lg:min-h-[600px]">
+        <ReactFlow
+          nodes={flow.nodes}
+          edges={flow.edges}
+          fitView
+          fitViewOptions={{ padding: 0.24, includeHiddenNodes: false, minZoom: 0.45, maxZoom: 1.05 }}
+          minZoom={0.22}
+          maxZoom={1.45}
+          onNodeClick={(_, node) => onSelect(node.id)}
+          nodesDraggable={false}
+          proOptions={{ hideAttribution: true }}
+        >
+          <Background color="#dbeafe" gap={18} />
+          <Controls />
+          <MiniMap nodeStrokeWidth={3} zoomable pannable />
+        </ReactFlow>
+      </div>
+    </>
+  );
+}
+
+function buildFlow(items: ReturnType<typeof getTreeNodes>, feedbackCounts: Map<string, number>): { nodes: FlowNode[]; edges: Edge[] } {
   const grouped = phaseOrder.map((phase) => items.filter((item) => item.phase === phase));
-  const nodes: Node[] = grouped.flatMap((group, columnIndex) =>
+  const nodes: FlowNode[] = grouped.flatMap((group, columnIndex) =>
     group.map((item, rowIndex) => ({
       id: item.id,
       position: {
@@ -310,4 +489,17 @@ function buildFlow(items: ReturnType<typeof getTreeNodes>, feedbackCounts: Map<s
     }));
 
   return { nodes, edges };
+}
+
+function countActiveFeedbacks(data: KnowledgeForestData, nodeId: string) {
+  return data.feedbacks.filter((feedback) => feedback.nodeId === nodeId && !isArchived(feedback)).length;
+}
+
+function countActiveChildren(data: KnowledgeForestData, nodeId: string) {
+  return data.nodes.filter((node) => node.parentId === nodeId && !isArchived(node)).length;
+}
+
+function getParentTitle(data: KnowledgeForestData, node: KnowledgeNode) {
+  if (!node.parentId) return null;
+  return data.nodes.find((candidate) => candidate.id === node.parentId)?.title ?? "Unknown";
 }

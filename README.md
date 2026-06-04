@@ -1,18 +1,21 @@
-# Knowledge Forest MVP v0.2.10
+# Knowledge Forest MVP v0.2.11
 
 Knowledge Forest is a local browser MVP for turning daily observations and improvement ideas into reusable operational knowledge.
 
-v0.2.10 is a Dashboard Slim / Guide Consolidation release. It reduces the amount of explanatory content on Dashboard, organizes Dashboard as a work-start page, and consolidates the detailed value explanation added in v0.2.9 into `/guide`.
+v0.2.11 is a Mobile Tree View improvement release. It adds a smartphone-friendly Timeline View to Tree detail pages while keeping the existing React Flow board as Map View.
 
-## What Changed In v0.2.10
+## What Changed In v0.2.11
 
-- Slimmed Dashboard so it works as an entry point for action.
-- Kept short Dashboard links for sample Tree, Create, and Guide.
-- Moved detailed value explanation to `/guide`.
-- Moved memo/chat/Notion comparison to `/guide`.
-- Moved the 5-minute tutorial details to `/guide`.
-- Moved use-case sample details to `/guide`.
-- Kept Dashboard work cards such as recent Forests, recent Trees, Phase Counts, Archive, and Tree status links.
+- Added `Timeline / Map` switching on Tree detail pages.
+- Smartphone widths open Tree details in Timeline View by default.
+- Desktop and wider tablet widths open Tree details in Map View by default.
+- Kept React Flow as Map View.
+- Timeline groups Nodes by Phase: Seed, Branch, Trial, Sigma, System.
+- Timeline cards show Phase, title, body excerpt, tags, Feedback count, child count, date, and Archived state.
+- Timeline selection updates the existing Node detail panel.
+- Archived Node display toggle also affects Timeline.
+- Node Growth Actions, Feedback, Feedback-to-Branch, and Archive controls are preserved.
+- Added a Guide section explaining Timeline and Map views.
 
 ## Core Idea
 
@@ -48,7 +51,7 @@ Area
 - `/guide` New tester guide and detailed explanation
 - `/forests` Area-grouped Forest list
 - `/forests/[forestId]` Forest detail
-- `/tree/[treeId]` React Flow Tree View, Node Growth Actions, Node Feedback, and Archive controls
+- `/tree/[treeId]` Timeline View, Map View, Node Growth Actions, Node Feedback, and Archive controls
 - `/archive` Archived Items and Restore
 - `/create` Create Forest / Create Tree / Create Node
 - `/search` Search related Trees, Nodes, and Feedback
@@ -90,18 +93,19 @@ knowledge-forest-mvp-v0.2
 
 This MVP stores data only in the current browser. It is not shared with other people or devices.
 
-## Manual Test Scenario v0.2.10
+## Manual Test Scenario v0.2.11
 
-1. Open Dashboard and confirm the information volume feels lighter than a manual page.
-2. Confirm Dashboard can open the sample Tree.
-3. Confirm Dashboard can navigate to Create.
-4. Confirm Dashboard can navigate to Guide.
-5. Open `/guide` and confirm it includes the value explanation, comparison with memo/chat/Notion, 5-minute tutorial, use-case samples, Archive / Restore explanation, and LocalStorage notes.
-6. Open the sample Tree and confirm existing Tree View, Node Growth Actions, Feedback, Feedback-to-Branch, and Archive controls still work.
-7. Create a new Forest, Tree, Node, and Feedback.
-8. Confirm Dashboard recent Forests / recent Trees / Phase Counts reflect normal LocalStorage data.
-9. Archive and Restore an item from `/archive`.
-10. Reload the browser and confirm LocalStorage data remains.
+1. Open a Tree detail page at smartphone width and confirm Timeline is the initial view.
+2. Open a Tree detail page at desktop width and confirm Map is the initial view.
+3. Switch between Timeline and Map.
+4. Select a Node in Timeline and confirm the Node detail panel updates.
+5. Select a Seed in Timeline and add a Branch or Trial from Node Growth Actions.
+6. Confirm the added Node appears in Timeline and Tree Nodes.
+7. Add Feedback and confirm the Timeline card Feedback count updates.
+8. Convert Feedback into Branch and confirm the Branch appears in Timeline.
+9. Turn on `Archived Nodeを表示` and confirm archived Nodes appear as faded Timeline cards.
+10. Switch to Map View and confirm the existing React Flow nodes, edges, and click selection still work.
+11. Reload the browser and confirm LocalStorage data remains.
 
 ## Tester Notes
 

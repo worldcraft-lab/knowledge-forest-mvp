@@ -119,6 +119,23 @@ export default function GuidePage() {
         </div>
       </GuideSection>
 
+      <GuideSection icon={<Trees className="h-5 w-5" />} title="Treeの見方">
+        <div className="grid gap-3 md:grid-cols-2">
+          <article className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+            <h3 className="text-sm font-bold text-blue-900">Timeline</h3>
+            <p className="mt-2 text-sm leading-6 text-blue-900">
+              スマホで読みやすい縦型表示です。SeedからSystemまで、知識が育つ流れを順番に見られます。
+            </p>
+          </article>
+          <article className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+            <h3 className="text-sm font-bold text-emerald-900">Map</h3>
+            <p className="mt-2 text-sm leading-6 text-emerald-900">
+              全体のつながりをホワイトボードのように見る表示です。PCではMap Viewが便利です。
+            </p>
+          </article>
+        </div>
+      </GuideSection>
+
       <GuideSection icon={<Flag className="h-5 w-5" />} title="Nodeの5種類">
         <div className="grid gap-3 md:grid-cols-5">
           {nodeTypes.map((item) => (

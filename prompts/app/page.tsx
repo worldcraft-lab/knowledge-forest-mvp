@@ -22,10 +22,11 @@ export default function DashboardPage() {
               Knowledge Growth Viewer
             </p>
             <h2 className="text-3xl font-bold tracking-normal text-forest-ink sm:text-4xl">
-              ForestからTreeを育て、気づきを運用知へつなげる。
+              AreaからForestを束ね、気づきを再利用できる運用知へ育てる。
             </h2>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-              v0.2.4では、Forest作成、TreeとSeedの同時作成、Dashboardからの検索導線に加えて、PCでも読みやすい知識成長フローを整えました。
+              v0.2.6では、Knowledge Forestの階層を Area → Forest → Tree → Node → Feedback に拡張しました。
+              Forestが増えても、IT、日常、店舗運営、StoSなどの知識領域ごとに整理できます。
               System化は人の評価ではなく、再利用可能な運用知への到達として扱います。
             </p>
           </div>
@@ -34,7 +35,7 @@ export default function DashboardPage() {
         <div className="mt-5 flex flex-wrap gap-3">
           <Link className="flex items-center gap-2 rounded-lg bg-forest-ink px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-700 active:scale-[0.99]" href="/forests">
             <Trees className="h-4 w-4" />
-            Forestを見る
+            Area / Forestを見る
           </Link>
           <Link className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 active:scale-[0.99]" href="/search">
             <Search className="h-4 w-4" />
@@ -46,13 +47,19 @@ export default function DashboardPage() {
       <DashboardCards metrics={metrics} />
 
       <section className="grid gap-5 xl:grid-cols-2">
-        <Panel title="System化候補" note="Sigmaには到達しているが、まだSystemになっていないTreeです。再利用可能な運用知へ整理しやすい状態を示します。">
+        <Panel
+          title="System化を検討しやすいTree"
+          note="Sigmaに到達していて、まだSystemになっていないTreeです。再利用可能な運用知へ整理しやすい状態を示します。"
+        >
           {metrics.systemCandidates.map((tree) => (
             <TreeCard key={tree.id} tree={tree} data={data} />
           ))}
-          {metrics.systemCandidates.length === 0 && <Empty text="現在、System化候補はありません。" />}
+          {metrics.systemCandidates.length === 0 && <Empty text="現在、System化を検討しやすいTreeはありません。" />}
         </Panel>
-        <Panel title="次の実践待ちTree" note="Trialに進まず、更新が止まっているTreeです。人の評価ではなく、次に試す余地がある知識として扱います。">
+        <Panel
+          title="次の実践待ちTree"
+          note="Trialに進まず、更新が止まっているTreeです。人の評価ではなく、次に試せる余地がある知識として扱います。"
+        >
           {metrics.stalledTrees.map((tree) => (
             <TreeCard key={tree.id} tree={tree} data={data} />
           ))}

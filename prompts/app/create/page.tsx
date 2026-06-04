@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ChevronLeft, Plus } from "lucide-react";
 import { PhaseBadge } from "@/components/PhaseBadge";
 import {
+  addArea,
   addForest,
   addNode,
   addTreeWithSeed,
@@ -38,6 +39,10 @@ const emptyTreeForm = {
 };
 
 const emptyForestForm = {
+  areaId: "",
+  newAreaTitle: "",
+  newAreaDescription: "",
+  newAreaTags: "",
   title: "",
   description: "",
   ownerLabel: "",
@@ -64,6 +69,7 @@ function CreatePageContent() {
   const [forestForm, setForestForm] = useState(emptyForestForm);
   const selectedTreeId = nodeForm.treeId || data.trees[0]?.id || "";
   const selectedForestId = treeForm.forestId || initialForestId || data.forests[0]?.id || "";
+  const selectedAreaId = forestForm.areaId || data.areas[0]?.id || "";
 
   const selectedTreeNodes = useMemo(
     () => getTreeNodes(data, selectedTreeId),
@@ -72,7 +78,17 @@ function CreatePageContent() {
 
   function submitForest(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = addForest(data, {
+    const areaTitle = forestForm.newAreaTitle.trim();
+    const areaResult = areaTitle
+      ? addArea(data, {
+          title: areaTitle,
+          description: forestForm.newAreaDescription.trim() || `${areaTitle}に関するForestを束ねるAreaです。`,
+          tags: splitTags(forestForm.newAreaTags)
+        })
+      : null;
+    const baseData = areaResult?.nextData ?? data;
+    const result = addForest(baseData, {
+      areaId: areaResult?.area.id ?? selectedAreaId,
       title: forestForm.title.trim(),
       description: forestForm.description.trim(),
       ownerLabel: forestForm.ownerLabel.trim(),
@@ -130,6 +146,7 @@ function CreatePageContent() {
       <h2 className="text-2xl font-bold text-forest-ink">Create Forest / Tree / Node</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
         Forest、Tree、Nodeをこの順に育てます。Tree作成時は最初のSeed Nodeも同時に作るため、作成後すぐTree Viewに成長の起点が表示されます。
+        v0.2.6ではNodeにFeedbackを残せます。Area → Forest → Tree → Node → Feedback の階層で整理します。
       </p>
 
       <div className="mt-5 grid max-w-xl grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1">
@@ -146,6 +163,53 @@ function CreatePageContent() {
 
       {mode === "forest" && (
         <form className="mt-6 grid gap-4" onSubmit={submitForest}>
+          <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+            <p className="text-sm font-bold text-emerald-900">Area</p>
+            <p className="mt-1 text-xs leading-5 text-emerald-800">
+              Areaは複数のForestを束ねる上位分類です。既存Areaを選ぶか、新しいArea名を入力して同時に作成できます。
+            </p>
+            <div className="mt-3 grid gap-4 md:grid-cols-2">
+              <Field label="既存Area">
+                <select
+                  className="input"
+                  value={selectedAreaId}
+                  onChange={(event) => setForestForm({ ...forestForm, areaId: event.target.value })}
+                >
+                  {data.areas.map((area) => (
+                    <option key={area.id} value={area.id}>
+                      {area.title}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="新しいArea名（任意）">
+                <input
+                  className="input"
+                  value={forestForm.newAreaTitle}
+                  onChange={(event) => setForestForm({ ...forestForm, newAreaTitle: event.target.value })}
+                  placeholder="例: IT, 日常, 店舗運営, 地域活動"
+                />
+              </Field>
+            </div>
+            {forestForm.newAreaTitle.trim() && (
+              <div className="mt-3 grid gap-4 md:grid-cols-2">
+                <Field label="新しいArea説明">
+                  <input
+                    className="input"
+                    value={forestForm.newAreaDescription}
+                    onChange={(event) => setForestForm({ ...forestForm, newAreaDescription: event.target.value })}
+                  />
+                </Field>
+                <Field label="新しいAreaタグ（カンマ区切り）">
+                  <input
+                    className="input"
+                    value={forestForm.newAreaTags}
+                    onChange={(event) => setForestForm({ ...forestForm, newAreaTags: event.target.value })}
+                  />
+                </Field>
+              </div>
+            )}
+          </div>
           <Field label="Forest名">
             <input className="input" required value={forestForm.title} onChange={(event) => setForestForm({ ...forestForm, title: event.target.value })} />
           </Field>
@@ -181,7 +245,7 @@ function CreatePageContent() {
             <select className="input" value={selectedForestId} onChange={(event) => setTreeForm({ ...treeForm, forestId: event.target.value })}>
               {data.forests.map((forest) => (
                 <option key={forest.id} value={forest.id}>
-                  {forest.title}
+                  {data.areas.find((area) => area.id === forest.areaId)?.title ?? "General"} / {forest.title}
                 </option>
               ))}
             </select>

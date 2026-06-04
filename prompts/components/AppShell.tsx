@@ -35,8 +35,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Link
             href="/create"
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-forest-ink px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
-            title="Forest / Tree / Nodeを作成"
-            aria-label="Forest / Tree / Nodeを作成"
+            title="Area / Forest / Tree / Nodeを作成"
+            aria-label="Area / Forest / Tree / Nodeを作成"
           >
             <Plus className="h-4 w-4" />
             Create
@@ -52,8 +52,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Link
               className="rounded-lg bg-forest-ink p-3 text-white"
               href="/create"
-              aria-label="Forest / Tree / Nodeを作成"
-              title="Forest / Tree / Nodeを作成"
+              aria-label="Area / Forest / Tree / Nodeを作成"
+              title="Area / Forest / Tree / Nodeを作成"
             >
               <Plus className="h-5 w-5" />
             </Link>
@@ -88,7 +88,7 @@ function Brand() {
       </div>
       <div>
         <p className="text-sm font-semibold text-slate-500">Knowledge Forest</p>
-        <h1 className="text-xl font-bold tracking-normal text-forest-ink">MVP v0.2.4</h1>
+        <h1 className="text-xl font-bold tracking-normal text-forest-ink">MVP v0.2.6</h1>
       </div>
     </Link>
   );

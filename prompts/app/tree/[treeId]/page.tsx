@@ -8,23 +8,33 @@ import { ChevronLeft, Plus } from "lucide-react";
 import { NodeDetailPanel } from "@/components/NodeDetailPanel";
 import { PhaseBadge } from "@/components/PhaseBadge";
 import {
+  addFeedback,
+  branchFromFeedback,
   formatDate,
+  getForestArea,
+  getNodeFeedbacks,
   getTreeNodes,
   phaseLabels,
   phaseNodeColors,
   phaseOrder,
+  saveKnowledgeForestData,
   useKnowledgeForestData
 } from "@/lib/v02-store";
+import { Feedback } from "@/lib/v02-types";
 
 export default function TreeDetailPage() {
   const params = useParams<{ treeId: string }>();
   const searchParams = useSearchParams();
   const focusedNodeId = searchParams.get("node");
-  const { data } = useKnowledgeForestData();
+  const { data, setData } = useKnowledgeForestData();
   const tree = data.trees.find((item) => item.id === params.treeId);
   const [selectedId, setSelectedId] = useState<string | null>(focusedNodeId);
   const treeNodes = useMemo(() => (tree ? getTreeNodes(data, tree.id) : []), [data, tree]);
-  const flow = useMemo(() => buildFlow(treeNodes), [treeNodes]);
+  const feedbackCounts = useMemo(
+    () => new Map(treeNodes.map((node) => [node.id, getNodeFeedbacks(data, node.id).length])),
+    [data, treeNodes]
+  );
+  const flow = useMemo(() => buildFlow(treeNodes, feedbackCounts), [treeNodes, feedbackCounts]);
 
   if (!tree) {
     return (
@@ -39,8 +49,29 @@ export default function TreeDetailPage() {
   }
 
   const forest = data.forests.find((item) => item.id === tree.forestId);
+  const area = forest ? getForestArea(data, forest) : null;
   const selectedNode = treeNodes.find((node) => node.id === selectedId) ?? treeNodes[0];
+  const selectedFeedbacks = selectedNode ? getNodeFeedbacks(data, selectedNode.id) : [];
   const forestHref = forest ? `/forests/${forest.id}` : "/forests";
+
+  function handleAddFeedback(payload: { body: string; authorLabel: string }) {
+    if (!selectedNode) return;
+    const result = addFeedback(data, {
+      treeId: selectedNode.treeId,
+      nodeId: selectedNode.id,
+      body: payload.body,
+      authorLabel: payload.authorLabel
+    });
+    saveKnowledgeForestData(result.nextData);
+    setData(result.nextData);
+  }
+
+  function handleBranchFromFeedback(feedback: Feedback) {
+    const result = branchFromFeedback(data, feedback);
+    saveKnowledgeForestData(result.nextData);
+    setData(result.nextData);
+    setSelectedId(result.node.id);
+  }
 
   if (treeNodes.length === 0) {
     return (
@@ -82,9 +113,17 @@ export default function TreeDetailPage() {
             <span>/</span>
             <Link className="text-blue-700" href="/forests">Forests</Link>
             <span>/</span>
+            {area && (
+              <>
+                <span>{area.title}</span>
+                <span>/</span>
+              </>
+            )}
             <span>{tree.title}</span>
           </div>
-          <p className="text-sm font-bold text-emerald-700">{forest?.title ?? "Forest"}</p>
+          <p className="text-sm font-bold text-emerald-700">
+            {area ? `${area.title} / ` : ""}{forest?.title ?? "Forest"}
+          </p>
           <h2 className="mt-1 text-xl font-bold text-forest-ink">{tree.title}</h2>
           <p className="mt-1 text-sm leading-6 text-slate-500">{tree.summary}</p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -111,7 +150,12 @@ export default function TreeDetailPage() {
           </ReactFlow>
         </div>
       </section>
-      <NodeDetailPanel node={selectedNode} />
+      <NodeDetailPanel
+        node={selectedNode}
+        feedbacks={selectedFeedbacks}
+        onAddFeedback={handleAddFeedback}
+        onBranchFromFeedback={handleBranchFromFeedback}
+      />
       <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-soft xl:col-span-2">
         <h3 className="mb-3 text-lg font-bold text-forest-ink">Tree Nodes</h3>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -127,6 +171,9 @@ export default function TreeDetailPage() {
               <p className="mt-2 text-xs font-semibold text-slate-500">
                 {node.authorName} / {formatDate(node.createdAt)}
               </p>
+              <p className="mt-2 text-xs font-bold text-emerald-700">
+                Feedback {getNodeFeedbacks(data, node.id).length}
+              </p>
             </button>
           ))}
         </div>
@@ -135,7 +182,7 @@ export default function TreeDetailPage() {
   );
 }
 
-function buildFlow(items: ReturnType<typeof getTreeNodes>): { nodes: Node[]; edges: Edge[] } {
+function buildFlow(items: ReturnType<typeof getTreeNodes>, feedbackCounts: Map<string, number>): { nodes: Node[]; edges: Edge[] } {
   const grouped = phaseOrder.map((phase) => items.filter((item) => item.phase === phase));
   const nodes: Node[] = grouped.flatMap((group, columnIndex) =>
     group.map((item, rowIndex) => ({
@@ -155,7 +202,7 @@ function buildFlow(items: ReturnType<typeof getTreeNodes>): { nodes: Node[]; edg
               {item.authorName} / {formatDate(item.createdAt)}
             </p>
             <p className="mt-1 text-xs text-slate-500">
-              参考 {item.helpfulCount} / コメント {item.commentCount}
+              Feedback {feedbackCounts.get(item.id) ?? 0}
             </p>
           </div>
         )

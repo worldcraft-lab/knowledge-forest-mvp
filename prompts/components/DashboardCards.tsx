@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, Flag, GitBranch, Layers3, Sigma, Trees, Workflow } from "lucide-react";
+import { AlertTriangle, ArrowRight, Flag, GitBranch, Layers3, Map, Sigma, Trees, Workflow } from "lucide-react";
 import { DashboardMetrics } from "@/lib/v02-types";
 
 export function DashboardCards({ metrics }: { metrics: DashboardMetrics }) {
   const cards = [
+    { label: "Total Areas", value: metrics.totalAreas, href: "/forests", icon: Map, color: "text-teal-700 bg-teal-100" },
     { label: "Total Forests", value: metrics.totalForests, href: "/forests", icon: Trees, color: "text-emerald-700 bg-emerald-100" },
     { label: "Total Trees", value: metrics.totalTrees, href: "/search?scope=trees", icon: GitBranch, color: "text-blue-700 bg-blue-100" },
     { label: "Total Nodes", value: metrics.totalNodes, href: "/search?scope=nodes", icon: Layers3, color: "text-orange-700 bg-orange-100" },

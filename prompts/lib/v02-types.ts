@@ -2,8 +2,18 @@ export type Phase = "seed" | "branch" | "trial" | "sigma" | "system";
 
 export type ForestVisibility = "private" | "team" | "organization" | "public-demo";
 
+export type Area = {
+  id: string;
+  title: string;
+  description: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type Forest = {
   id: string;
+  areaId?: string;
   title: string;
   description: string;
   tags: string[];
@@ -37,6 +47,17 @@ export type KnowledgeNode = {
   commentCount: number;
 };
 
+export type Feedback = {
+  id: string;
+  treeId: string;
+  nodeId: string;
+  body: string;
+  authorLabel: string;
+  createdAt: string;
+  updatedAt: string;
+  archivedAt?: string | null;
+};
+
 export type NotificationItem = {
   id: string;
   title: string;
@@ -48,16 +69,20 @@ export type NotificationItem = {
 };
 
 export type KnowledgeForestData = {
+  areas: Area[];
   forests: Forest[];
   trees: KnowledgeTree[];
   nodes: KnowledgeNode[];
+  feedbacks: Feedback[];
   notifications: NotificationItem[];
 };
 
 export type DashboardMetrics = {
+  totalAreas: number;
   totalForests: number;
   totalTrees: number;
   totalNodes: number;
+  totalFeedbacks: number;
   phaseCounts: Record<Phase, number>;
   sigmaArrivalRate: number;
   systemizationRate: number;

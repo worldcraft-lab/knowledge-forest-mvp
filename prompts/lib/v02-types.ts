@@ -2,6 +2,11 @@ export type Phase = "seed" | "branch" | "trial" | "sigma" | "system";
 
 export type ForestVisibility = "private" | "team" | "organization" | "public-demo";
 
+export type ArchiveFields = {
+  archivedAt?: string | null;
+  archivedReason?: string | null;
+};
+
 export type Area = {
   id: string;
   title: string;
@@ -9,7 +14,7 @@ export type Area = {
   tags: string[];
   createdAt: string;
   updatedAt: string;
-};
+} & ArchiveFields;
 
 export type Forest = {
   id: string;
@@ -21,7 +26,7 @@ export type Forest = {
   visibility?: ForestVisibility;
   createdAt: string;
   updatedAt?: string;
-};
+} & ArchiveFields;
 
 export type KnowledgeTree = {
   id: string;
@@ -31,7 +36,7 @@ export type KnowledgeTree = {
   tags: string[];
   createdAt: string;
   updatedAt: string;
-};
+} & ArchiveFields;
 
 export type KnowledgeNode = {
   id: string;
@@ -45,7 +50,7 @@ export type KnowledgeNode = {
   createdAt: string;
   helpfulCount: number;
   commentCount: number;
-};
+} & ArchiveFields;
 
 export type Feedback = {
   id: string;
@@ -56,6 +61,7 @@ export type Feedback = {
   createdAt: string;
   updatedAt: string;
   archivedAt?: string | null;
+  archivedReason?: string | null;
 };
 
 export type NotificationItem = {

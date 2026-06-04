@@ -1,30 +1,22 @@
-# Knowledge Forest MVP v0.2.6
+# Knowledge Forest MVP v0.2.9
 
-Knowledge Forest is a local browser MVP for visualizing how small observations grow into reusable operational knowledge.
+Knowledge Forest is a local browser MVP for turning daily observations and improvement ideas into reusable operational knowledge.
 
-v0.2.6 adds Feedback under Node. Feedback is not a social comment thread; it is a note, viewpoint, or improvement seed that can be cut out into a Branch.
+v0.2.9 is an onboarding and value-explanation release. It adds clearer in-app guidance for new testers: what the app is for, what becomes easier, how it differs from notes/chat/Notion, and what to try first.
 
-## Product Summary
+## What Changed In v0.2.9
 
-- Area: top-level knowledge domain that groups multiple Forests
-- Forest: topic or project-level knowledge space inside an Area
-- Knowledge Tree: a linked growth path inside a Forest
-- Knowledge Node: one knowledge item in the Seed / Branch / Trial / Sigma / System flow
-- Feedback: a supplemental viewpoint attached to a Node
-- Sigma: the integration phase where scattered Branch and Trial knowledge is summarized
-- System: arrival at reusable operational knowledge, not a people evaluation signal
+- Added a Dashboard card: `これは何のためのアプリ？`
+- Added `何が便利になる？` and comparison with memo/chat/Notion
+- Added a 5-minute tutorial on Dashboard
+- Added `/guide`
+- Added use-case cards for stores, events, student projects, and SNS operations
+- Improved sample Tree entry point
+- Added value explanations to Create, My Page, and empty Archive states
 
-## Core Hierarchy
+## Core Idea
 
-```text
-Area
-└ Forest
-  └ Tree
-    └ Node
-      └ Feedback
-```
-
-## Knowledge Growth Flow
+Knowledge Forest is not just a post list or memo app.
 
 ```text
 Seed / 気づき
@@ -34,21 +26,26 @@ Seed / 気づき
 → System / 制度化
 ```
 
-## Feedback
+The app helps users see how a small observation grows into an improvement, a practice result, an integrated template, and finally reusable operational knowledge.
 
-- Feedback is attached to a Node.
-- Feedback is used for supplements, viewpoints, and improvement hints.
-- Important Feedback can be converted into a Branch Node.
-- Feedback counts are based on real LocalStorage data, not fixed sample numbers.
-- This is a LocalStorage-only MVP, so Feedback is not shared with other people or devices.
-- Feedback has `archivedAt` for future archive support; archived Feedback is hidden from normal views.
+## Structure
+
+```text
+Area
+└ Forest
+  └ Tree
+    └ Node
+      └ Feedback
+```
 
 ## Routes
 
-- `/` Dashboard
+- `/` Dashboard and onboarding
+- `/guide` New tester guide
 - `/forests` Area-grouped Forest list
 - `/forests/[forestId]` Forest detail
-- `/tree/[treeId]` React Flow Tree View and Node Feedback
+- `/tree/[treeId]` React Flow Tree View, Node Growth Actions, Node Feedback, and Archive controls
+- `/archive` Archived Items and Restore
 - `/create` Create Forest / Create Tree / Create Node
 - `/search` Search related Trees, Nodes, and Feedback
 - `/me` Contribution tendencies
@@ -73,8 +70,6 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-If port 3000 is already in use, Next.js may start on another port such as `http://localhost:3001`.
-
 ## Build
 
 ```bash
@@ -89,63 +84,31 @@ Data is stored in the browser under:
 knowledge-forest-mvp-v0.2
 ```
 
-Existing v0.2 LocalStorage data is normalized on load. If older data has no `areas`, `areaId`, or `feedbacks`, the app adds safe defaults.
+This MVP stores data only in the current browser. It is not shared with other people or devices.
 
-To reset local sample data, delete this LocalStorage key from browser dev tools and reload the app.
+## Manual Test Scenario v0.2.9
 
-## Manual Test Scenario v0.2.6
+1. Open Dashboard and confirm the app's purpose is understandable from `これは何のためのアプリ？`.
+2. Open `/guide`.
+3. Follow the 5-minute tutorial links.
+4. Open the sample Tree.
+5. Select a Seed and create a Branch or Trial from Node Growth Actions.
+6. Add Feedback.
+7. Convert Feedback into a Branch.
+8. Archive and Restore an item.
+9. Confirm Dashboard/Search/My Page still work.
+10. Give the URL to a first-time tester without explanation and check whether they understand what the app is for.
 
-Use this scenario on both smartphone and desktop widths.
+## Tester Notes
 
-### 1. Create Area, Forest, Tree, And Seed
-
-1. Open `/create`.
-2. Create a Forest under an existing or new Area.
-3. From the Forest detail page, create a Tree with its first Seed.
-4. Confirm the app moves to the new Tree View.
-5. Confirm the Seed Node appears in React Flow and in the Tree Nodes list.
-
-### 2. Add Feedback To Node
-
-1. Open a Tree View.
-2. Select a Node in React Flow or the Tree Nodes list.
-3. In the Node detail panel, enter Feedback body and an optional author label.
-4. Submit Feedback.
-5. Confirm the Feedback appears immediately under the selected Node.
-6. Confirm the Feedback count updates from real data.
-
-### 3. Reload Feedback
-
-1. Reload the browser.
-2. Open the same Tree and Node.
-3. Confirm the Feedback remains visible from LocalStorage.
-
-### 4. Search Feedback
-
-1. Open `/search`.
-2. Search for a term from the Feedback body.
-3. Confirm the related Tree appears.
-4. Confirm Matched Feedback appears and links back to the Tree View.
-
-### 5. Convert Feedback To Branch
-
-1. Open a Node with Feedback.
-2. Click `Branchとして切り出す`.
-3. Confirm a Branch Node is created with the Feedback body.
-4. Confirm React Flow shows the new Branch connected to the original Node.
-
-### 6. My Page
-
-1. Open `/me`.
-2. Confirm Feedback count is visible.
-3. Confirm the wording describes a contribution tendency, not ranking or people evaluation.
+This MVP is for testing structure, wording, and usability. Do not enter important personal information or production data.
 
 ## Limitations
 
 - Local browser MVP only
+- No permanent delete
 - No real notifications
 - No user accounts or permissions
 - No backend synchronization
 - Feedback is local to this browser and is not shared
-- No claim of public release or validation
 - Contribution views are tendencies only and must not be treated as ranking, HR evaluation, or performance scoring

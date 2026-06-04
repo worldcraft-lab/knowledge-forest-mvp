@@ -72,6 +72,7 @@ export default function ArchivePage() {
         {areas.map((area) => (
           <ArchiveCard key={area.id} title={area.title} meta={`Area / ${area.archivedAt ? formatDate(area.archivedAt) : ""}`} onRestore={() => restore("area", area.id, false)} />
         ))}
+        {areas.length === 0 && <EmptyArchive />}
       </ArchiveSection>
 
       <ArchiveSection title="Archived Forests">
@@ -81,24 +82,28 @@ export default function ArchivePage() {
             <ArchiveCard key={forest.id} title={forest.title} meta={`${getForestArea(data, forest).title} / ${forest.archivedAt ? formatDate(forest.archivedAt) : ""}`} parentArchived={parentArchived} onRestore={() => restore("forest", forest.id, parentArchived)} />
           );
         })}
+        {forests.length === 0 && <EmptyArchive />}
       </ArchiveSection>
 
       <ArchiveSection title="Archived Trees">
         {trees.map((tree) => (
           <TreeArchiveCard key={tree.id} tree={tree} data={normalized} onRestore={(parentArchived) => restore("tree", tree.id, parentArchived)} />
         ))}
+        {trees.length === 0 && <EmptyArchive />}
       </ArchiveSection>
 
       <ArchiveSection title="Archived Nodes">
         {nodes.map((node) => (
           <NodeArchiveCard key={node.id} node={node} data={normalized} onRestore={(parentArchived) => restore("node", node.id, parentArchived)} />
         ))}
+        {nodes.length === 0 && <EmptyArchive />}
       </ArchiveSection>
 
       <ArchiveSection title="Archived Feedback">
         {feedbacks.map((feedback) => (
           <FeedbackArchiveCard key={feedback.id} feedback={feedback} data={normalized} onRestore={(parentArchived) => restore("feedback", feedback.id, parentArchived)} />
         ))}
+        {feedbacks.length === 0 && <EmptyArchive />}
       </ArchiveSection>
     </div>
   );
@@ -112,6 +117,14 @@ function ArchiveSection({ title, children }: { title: string; children: React.Re
         {children}
       </div>
     </section>
+  );
+}
+
+function EmptyArchive() {
+  return (
+    <p className="rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-500">
+      Archiveは空です。Archiveは削除ではなく、今は使わない知識を通常表示から隠すための場所です。
+    </p>
   );
 }
 

@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { ArrowRight, Bell, ChevronLeft } from "lucide-react";
-import { formatDate, saveKnowledgeForestData, useKnowledgeForestData } from "@/lib/v02-store";
+import { formatDate, getVisibleData, saveKnowledgeForestData, useKnowledgeForestData } from "@/lib/v02-store";
 import { NotificationItem } from "@/lib/v02-types";
 
 export default function NotificationsPage() {
   const { data, setData } = useKnowledgeForestData();
+  const visibleData = getVisibleData(data);
 
   function openNotification(item: NotificationItem) {
     if (item.read) return;
@@ -32,10 +33,10 @@ export default function NotificationsPage() {
       </div>
       <h2 className="text-2xl font-bold text-forest-ink">Local Notifications</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-        MVP v0.2.6では実通知ではなく、次に見るとよいTreeへ移動するためのローカル通知として表示します。
+        MVP v0.2.9では実通知ではなく、次に見るとよいTreeへ移動するためのローカル通知として表示します。Archive済みのTreeに関する通知は通常表示から除外します。
       </p>
       <div className="mt-5 space-y-3">
-        {data.notifications.map((item) => {
+        {visibleData.notifications.map((item) => {
           const href = getNotificationHref(item);
           return (
             <Link
@@ -43,8 +44,6 @@ export default function NotificationsPage() {
               href={href}
               onClick={() => openNotification(item)}
               className="group flex cursor-pointer gap-3 rounded-lg border border-slate-200 bg-forest-mist p-4 transition hover:border-blue-200 hover:bg-blue-50 active:scale-[0.99]"
-              aria-label={`${item.title}を開く`}
-              title={`${item.title}を開く`}
             >
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-orange-100 text-orange-700">
                 <Bell className="h-5 w-5" />
@@ -66,9 +65,7 @@ export default function NotificationsPage() {
 }
 
 function getNotificationHref(item: NotificationItem) {
-  if (item.relatedTreeId && item.relatedNodeId) {
-    return `/tree/${item.relatedTreeId}?node=${item.relatedNodeId}`;
-  }
+  if (item.relatedTreeId && item.relatedNodeId) return `/tree/${item.relatedTreeId}?node=${item.relatedNodeId}`;
   if (item.relatedTreeId) return `/tree/${item.relatedTreeId}`;
   if (item.id.includes("sigma")) return "/tree/tree-student-review-loop";
   if (item.id.includes("stalled")) return "/tree/tree-lunch-seat-flow";

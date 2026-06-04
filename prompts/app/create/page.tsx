@@ -144,9 +144,23 @@ function CreatePageContent() {
         <span>Create</span>
       </div>
       <h2 className="text-2xl font-bold text-forest-ink">Create Forest / Tree / Node</h2>
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <div className="rounded-lg bg-emerald-50 p-4">
+          <p className="text-sm font-bold text-emerald-900">Forest</p>
+          <p className="mt-1 text-xs leading-5 text-emerald-800">テーマやプロジェクトごとの知識空間を作ります。</p>
+        </div>
+        <div className="rounded-lg bg-blue-50 p-4">
+          <p className="text-sm font-bold text-blue-900">Tree</p>
+          <p className="mt-1 text-xs leading-5 text-blue-800">ひとつの気づきや課題を、改善・実践・仕組みへ育てる場所です。</p>
+        </div>
+        <div className="rounded-lg bg-orange-50 p-4">
+          <p className="text-sm font-bold text-orange-900">Node</p>
+          <p className="mt-1 text-xs leading-5 text-orange-800">Treeの中で育つ知識の単位です。Seed / Branch / Trial / Sigma / Systemがあります。</p>
+        </div>
+      </div>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
         Forest、Tree、Nodeをこの順に育てます。Tree作成時は最初のSeed Nodeも同時に作るため、作成後すぐTree Viewに成長の起点が表示されます。
-        v0.2.6ではNodeにFeedbackを残せます。Area → Forest → Tree → Node → Feedback の階層で整理します。
+        v0.2.9では初めて触る人にも分かりやすいように、作成対象の意味を画面内で説明しています。Create画面は全体から追加する場所として使います。
       </p>
 
       <div className="mt-5 grid max-w-xl grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1">

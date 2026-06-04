@@ -3,10 +3,21 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { ForestCard } from "@/components/ForestCard";
-import { getAreaForests, useKnowledgeForestData } from "@/lib/v02-store";
+import { archiveItem, getAreaForests, getVisibleData, saveKnowledgeForestData, useKnowledgeForestData } from "@/lib/v02-store";
 
 export default function ForestsPage() {
-  const { data } = useKnowledgeForestData();
+  const { data, setData } = useKnowledgeForestData();
+  const visibleData = getVisibleData(data);
+
+  function archiveArea(areaId: string, forestCount: number) {
+    const message = forestCount
+      ? "このAreaにはForestがあります。Archiveすると、配下のForest / Tree / Node / Feedbackも通常表示から隠れます。"
+      : "このAreaをArchiveします。通常表示から隠れますが、データは保持され、後からRestoreできます。";
+    if (!window.confirm(message)) return;
+    const nextData = archiveItem(data, "area", areaId, "Area archived");
+    saveKnowledgeForestData(nextData);
+    setData(nextData);
+  }
 
   return (
     <div className="space-y-5">
@@ -29,7 +40,7 @@ export default function ForestsPage() {
       </section>
 
       <section className="space-y-5">
-        {data.areas.map((area) => {
+        {visibleData.areas.map((area) => {
           const forests = getAreaForests(data, area.id);
 
           return (
@@ -43,6 +54,13 @@ export default function ForestsPage() {
                 <span className="rounded-md bg-teal-50 px-3 py-2 text-xs font-bold text-teal-800">
                   {forests.length} Forests
                 </span>
+                <button
+                  className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700"
+                  onClick={() => archiveArea(area.id, forests.length)}
+                  type="button"
+                >
+                  Archive Area
+                </button>
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">

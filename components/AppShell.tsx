@@ -18,9 +18,9 @@ const navItems = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="min-h-screen pb-32 lg:pb-0">
-      <div className="mx-auto flex w-full max-w-7xl gap-5 px-4 py-4 sm:px-6 lg:px-8">
-        <aside className="sticky top-4 hidden h-[calc(100vh-2rem)] w-64 shrink-0 rounded-lg border border-slate-200 bg-white/90 p-4 shadow-soft backdrop-blur lg:block">
+    <main className="min-h-screen pb-32 print:pb-0 lg:pb-0">
+      <div className="mx-auto flex w-full max-w-7xl gap-5 px-4 py-4 print:block print:max-w-none print:p-0 sm:px-6 lg:px-8">
+        <aside className="sticky top-4 hidden h-[calc(100vh-2rem)] w-64 shrink-0 rounded-lg border border-slate-200 bg-white/90 p-4 shadow-soft backdrop-blur print:hidden lg:block">
           <Brand />
           <nav className="mt-8 space-y-2">
             {navItems.map((item) => (
@@ -49,7 +49,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         <section className="min-w-0 flex-1">
-          <header className="mb-4 flex items-center justify-between lg:hidden">
+          <header className="mb-4 flex items-center justify-between print:hidden lg:hidden">
             <Brand />
             <Link
               className="rounded-lg bg-forest-ink p-3 text-white"
@@ -64,7 +64,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </section>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_24px_rgba(38,50,63,0.08)] backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_24px_rgba(38,50,63,0.08)] backdrop-blur print:hidden lg:hidden">
         <div className="mx-auto grid max-w-xl grid-cols-8 gap-1">
           {navItems.map((item) => (
             <Link

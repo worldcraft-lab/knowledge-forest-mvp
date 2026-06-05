@@ -44,3 +44,101 @@ select {
     @apply w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-300 focus:ring-4 focus:ring-blue-100;
   }
 }
+
+@media print {
+  @page {
+    size: A4;
+    margin: 16mm 18mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    min-height: auto !important;
+  }
+
+  body {
+    font-size: 11pt;
+    line-height: 1.6;
+  }
+
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+
+  .output-print-page {
+    width: 100% !important;
+    max-width: 176mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+  }
+
+  .output-print-header,
+  .output-print-content {
+    background: #ffffff !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+
+  .output-print-header {
+    margin-bottom: 8mm !important;
+  }
+
+  .output-print-header h2 {
+    margin-top: 0 !important;
+    font-size: 20pt !important;
+    line-height: 1.25 !important;
+  }
+
+  .output-print-header .grid {
+    gap: 3mm !important;
+  }
+
+  .output-print-content {
+    break-before: auto;
+  }
+
+  .output-markdown-preview {
+    background: #ffffff !important;
+    color: #111827 !important;
+    max-width: none !important;
+  }
+
+  .output-markdown-preview h1,
+  .output-markdown-preview h2 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .output-markdown-preview h1 {
+    font-size: 22pt !important;
+    line-height: 1.25 !important;
+    margin: 0 0 8mm !important;
+  }
+
+  .output-markdown-preview h2 {
+    border-bottom: 1px solid #cbd5e1 !important;
+    font-size: 14pt !important;
+    line-height: 1.35 !important;
+    margin: 8mm 0 3mm !important;
+    padding-bottom: 2mm !important;
+  }
+
+  .output-markdown-preview p {
+    break-inside: avoid;
+    orphans: 3;
+    widows: 3;
+  }
+
+  textarea {
+    white-space: pre-wrap !important;
+  }
+}

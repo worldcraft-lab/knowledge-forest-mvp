@@ -68,8 +68,8 @@ export default function OutputPage() {
   }
 
   return (
-    <div className="space-y-5">
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft print:border-0 print:shadow-none">
+    <div className="output-print-page space-y-5">
+      <section className="output-print-header rounded-lg border border-slate-200 bg-white p-5 shadow-soft print:border-0 print:shadow-none">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
           <Link className="inline-flex items-center gap-1 text-sm font-bold text-blue-700" href={`/tree/${tree.id}?node=${node.id}`}>
             <ChevronLeft className="h-4 w-4" />
@@ -112,7 +112,7 @@ export default function OutputPage() {
         </p>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft print:border-0 print:p-0 print:shadow-none">
+      <section className="output-print-content rounded-lg border border-slate-200 bg-white p-5 shadow-soft print:border-0 print:p-0 print:shadow-none">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
           <h3 className="text-lg font-bold text-forest-ink">Output Preview</h3>
           <div className="grid grid-cols-2 rounded-lg border border-slate-200 bg-slate-50 p-1">
@@ -125,16 +125,21 @@ export default function OutputPage() {
             Clipboardへのコピーに失敗しました。Markdownタブのテキストを選択してコピーしてください。
           </p>
         )}
-        {tab === "preview" ? (
+        <div className="print:hidden">
+          {tab === "preview" ? (
+            <MarkdownPreview markdown={markdown} />
+          ) : (
+            <textarea
+              ref={textareaRef}
+              className="min-h-[70vh] w-full resize-y rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-7 text-slate-800 outline-none focus:border-blue-300"
+              readOnly
+              value={markdown}
+            />
+          )}
+        </div>
+        <div className="hidden print:block">
           <MarkdownPreview markdown={markdown} />
-        ) : (
-          <textarea
-            ref={textareaRef}
-            className="min-h-[70vh] w-full resize-y rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-7 text-slate-800 outline-none focus:border-blue-300 print:min-h-0 print:border-0 print:bg-white print:p-0"
-            readOnly
-            value={markdown}
-          />
-        )}
+        </div>
       </section>
 
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft print:hidden">
@@ -272,7 +277,7 @@ function Info({ label, value }: { label: string; value: string }) {
 
 function MarkdownPreview({ markdown }: { markdown: string }) {
   return (
-    <article className="prose prose-slate max-w-none rounded-lg bg-white text-slate-800 print:prose-sm">
+    <article className="output-markdown-preview prose prose-slate max-w-none rounded-lg bg-white text-slate-800 print:prose-sm">
       {markdown.split("\n").map((line, index) => {
         if (line.startsWith("# ")) return <h1 key={index} className="mb-5 text-3xl font-bold text-forest-ink">{line.slice(2)}</h1>;
         if (line.startsWith("## ")) return <h2 key={index} className="mb-3 mt-7 border-b border-slate-200 pb-2 text-xl font-bold text-forest-ink">{line.slice(3)}</h2>;

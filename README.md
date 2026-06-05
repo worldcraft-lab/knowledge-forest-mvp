@@ -1,21 +1,21 @@
-# Knowledge Forest MVP v0.2.11
+# Knowledge Forest MVP v0.2.12
 
 Knowledge Forest is a local browser MVP for turning daily observations and improvement ideas into reusable operational knowledge.
 
-v0.2.11 is a Mobile Tree View improvement release. It adds a smartphone-friendly Timeline View to Tree detail pages while keeping the existing React Flow board as Map View.
+v0.2.12 is the System Output release. System Nodes can generate Markdown Output that can be previewed, copied, and printed or saved as PDF through the browser print dialog.
 
-## What Changed In v0.2.11
+## What Changed In v0.2.12
 
-- Added `Timeline / Map` switching on Tree detail pages.
-- Smartphone widths open Tree details in Timeline View by default.
-- Desktop and wider tablet widths open Tree details in Map View by default.
-- Kept React Flow as Map View.
-- Timeline groups Nodes by Phase: Seed, Branch, Trial, Sigma, System.
-- Timeline cards show Phase, title, body excerpt, tags, Feedback count, child count, date, and Archived state.
-- Timeline selection updates the existing Node detail panel.
-- Archived Node display toggle also affects Timeline.
-- Node Growth Actions, Feedback, Feedback-to-Branch, and Archive controls are preserved.
-- Added a Guide section explaining Timeline and Map views.
+- Added an `Outputを作成` action for System Nodes.
+- Added `/output/[nodeId]` for Output Preview.
+- Generated Markdown from the System Node and related Tree context.
+- Related Nodes are collected by following the System Node ancestor chain first, then falling back to same-Tree Phase groups.
+- Added Preview / Markdown display switching.
+- Added Copy Markdown with a selectable textarea fallback.
+- Added Print / Save as PDF via `window.print()`.
+- Shows a clear message when a non-System Node is opened as Output.
+- Shows an Archive notice when the target System Node is archived.
+- Kept Output as an action, not a new Node Phase.
 
 ## Core Idea
 
@@ -33,7 +33,7 @@ Sigma / 統合
 System / 制度化
 ```
 
-The app helps users see how a small observation grows into an improvement, a practice result, an integrated template, and finally reusable operational knowledge.
+Output is not a sixth Phase. It is an action for System Nodes that are ready to become reusable operational knowledge.
 
 ## Structure
 
@@ -51,7 +51,8 @@ Area
 - `/guide` New tester guide and detailed explanation
 - `/forests` Area-grouped Forest list
 - `/forests/[forestId]` Forest detail
-- `/tree/[treeId]` Timeline View, Map View, Node Growth Actions, Node Feedback, and Archive controls
+- `/tree/[treeId]` Timeline View, Map View, Node Growth Actions, Node Feedback, Output action, and Archive controls
+- `/output/[nodeId]` Markdown Output Preview, Copy, and Print
 - `/archive` Archived Items and Restore
 - `/create` Create Forest / Create Tree / Create Node
 - `/search` Search related Trees, Nodes, and Feedback
@@ -93,19 +94,22 @@ knowledge-forest-mvp-v0.2
 
 This MVP stores data only in the current browser. It is not shared with other people or devices.
 
-## Manual Test Scenario v0.2.11
+## Manual Test Scenario v0.2.12
 
-1. Open a Tree detail page at smartphone width and confirm Timeline is the initial view.
-2. Open a Tree detail page at desktop width and confirm Map is the initial view.
-3. Switch between Timeline and Map.
-4. Select a Node in Timeline and confirm the Node detail panel updates.
-5. Select a Seed in Timeline and add a Branch or Trial from Node Growth Actions.
-6. Confirm the added Node appears in Timeline and Tree Nodes.
-7. Add Feedback and confirm the Timeline card Feedback count updates.
-8. Convert Feedback into Branch and confirm the Branch appears in Timeline.
-9. Turn on `Archived Nodeを表示` and confirm archived Nodes appear as faded Timeline cards.
-10. Switch to Map View and confirm the existing React Flow nodes, edges, and click selection still work.
-11. Reload the browser and confirm LocalStorage data remains.
+1. Open a Tree detail page.
+2. Select a System Node in Timeline View.
+3. Confirm `Outputを作成` appears in the Node detail panel.
+4. Open Output Preview.
+5. Confirm the Output title, source Tree, target System Node, Markdown Preview, Copy Markdown, Print / Save as PDF, and Back to Tree controls are visible.
+6. Confirm Markdown contains title, overview, purpose, Seed / Branch / Trial / Sigma context, procedure, notes, tags, created date, and source path.
+7. Switch between Preview and Markdown.
+8. Click Copy Markdown and confirm the Markdown can be pasted elsewhere.
+9. Click Print / Save as PDF and confirm the browser print dialog opens.
+10. Open `/output/[nodeId]` with a non-System Node and confirm the non-System message appears.
+11. Open an archived System Node Output and confirm the Archive notice appears.
+12. Confirm Timeline / Map selection both show the Output button for System Nodes.
+13. Confirm Feedback, Feedback-to-Branch, Archive, Restore, and Node Growth Actions still work.
+14. Reload the browser and confirm LocalStorage data remains.
 
 ## Tester Notes
 
@@ -119,4 +123,6 @@ This MVP is for testing structure, wording, and usability. Do not enter importan
 - No user accounts or permissions
 - No backend synchronization
 - Feedback is local to this browser and is not shared
+- Output is Markdown preview / copy / print only, not a backend export
+- Output history is not stored
 - Contribution views are tendencies only and must not be treated as ranking, HR evaluation, or performance scoring

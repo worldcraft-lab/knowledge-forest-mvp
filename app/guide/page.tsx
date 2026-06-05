@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type React from "react";
-import { Archive, ArrowRight, BookOpen, ChevronLeft, Flag, Layers, Lightbulb, Map, MessageSquare, Trees } from "lucide-react";
+import { Archive, ArrowRight, BookOpen, ChevronLeft, FileText, Flag, Layers, Lightbulb, Map, MessageSquare, Trees } from "lucide-react";
 
 const benefits = [
   "チャットで流れた改善案を残せる",
@@ -34,6 +34,7 @@ const tutorialSteps = [
   { text: "このNodeから育てる、でBranchかTrialを追加する", href: "/tree/tree-first-service-flow" },
   { text: "Feedbackを書いてみる", href: "/tree/tree-first-service-flow" },
   { text: "FeedbackをBranchとして切り出す", href: "/tree/tree-first-service-flow" },
+  { text: "System NodeからOutputを作成してみる", href: "/tree/tree-first-service-flow" },
   { text: "ArchiveしてRestoreしてみる", href: "/archive" }
 ];
 
@@ -76,9 +77,6 @@ export default function GuidePage() {
         <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">
           Knowledge Forestは、日々の気づきや改善案を、実践・統合・仕組みへ育てるためのツールです。
           チャットで流れた話や、メモに散らばった改善案を、あとで使える運用知として残せます。
-        </p>
-        <p className="mt-3 max-w-3xl rounded-lg bg-forest-mist p-4 text-sm leading-6 text-slate-700">
-          単発のメモではなく、「気づきがどう育って、どんな仕組みになったか」を見るためのアプリです。
         </p>
       </section>
 
@@ -147,7 +145,17 @@ export default function GuidePage() {
           ))}
         </div>
         <p className="mt-4 rounded-lg bg-blue-50 p-3 text-sm leading-6 text-blue-900">
-          Phaseは人の評価ではなく、知識の状態を表します。Seedから順番に進むだけでなく、必要に応じてTrialやSigmaへ育てられます。
+          Phaseは人の評価ではなく、知識の状態を表します。Outputは新しいPhaseではなく、System Nodeから作成する出力アクションです。
+        </p>
+      </GuideSection>
+
+      <GuideSection icon={<FileText className="h-5 w-5" />} title="System Node Output">
+        <p className="text-sm leading-6 text-slate-600">
+          Systemまで育ったNodeは、Markdown形式のOutputとしてPreview・Copy・Printできます。
+          マニュアル、手順書、引き継ぎ資料として外に出すための機能です。
+        </p>
+        <p className="mt-3 rounded-lg bg-blue-50 p-3 text-sm leading-6 text-blue-900">
+          OutputはSystem Nodeに対する出力アクションです。Seed / Branch / Trial / Sigma / System の5Phaseは変わりません。
         </p>
       </GuideSection>
 
@@ -191,22 +199,20 @@ export default function GuidePage() {
         </Link>
       </GuideSection>
 
-      <GuideSection icon={<BookOpen className="h-5 w-5" />} title="テスターに見てほしいポイント">
-        <div className="grid gap-3 md:grid-cols-2">
-          {[
-            "何に使うアプリか、説明なしで伝わるか",
-            "Seed / Branch / Trial / Sigma / System の言葉が分かりやすいか",
-            "Nodeを見ながら育てる導線が自然か",
-            "FeedbackとBranch化の違いが分かるか",
-            "Archiveが削除ではないと伝わるか",
-            "スマホで迷わず触れるか"
-          ].map((item) => (
-            <p key={item} className="rounded-lg bg-forest-mist p-3 text-sm font-semibold leading-6 text-slate-700">
-              {item}
-            </p>
+      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft">
+        <h2 className="flex items-center gap-2 text-xl font-bold text-forest-ink">
+          <span className="text-emerald-700"><FileText className="h-5 w-5" /></span>
+          SystemからOutputする
+        </h2>
+        <p className="mt-4 text-sm leading-6 text-slate-600">
+          System Nodeは、再利用できる知識として整理されたNodeです。Systemまで育ったNodeは、Output機能を使ってMarkdown形式のマニュアル・手順書・引き継ぎ資料として取り出せます。
+        </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {["接客マニュアル", "業務手順書", "イベント運営チェックリスト", "振り返りレポート", "新人向け引き継ぎ資料"].map((item) => (
+            <p key={item} className="rounded-lg bg-forest-mist p-3 text-sm font-semibold leading-6 text-slate-700">{item}</p>
           ))}
         </div>
-      </GuideSection>
+      </section>
 
       <section className="rounded-lg border border-amber-200 bg-amber-50 p-5">
         <h2 className="text-lg font-bold text-amber-900">LocalStorage版の注意事項</h2>

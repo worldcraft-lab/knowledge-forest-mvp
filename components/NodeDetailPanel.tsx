@@ -1,7 +1,8 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { GitBranch, Plus, Sprout } from "lucide-react";
+import Link from "next/link";
+import { FileText, GitBranch, Plus, Sprout } from "lucide-react";
 import { formatDate, phaseDescriptions, phaseLabels } from "@/lib/v02-store";
 import { Feedback, KnowledgeNode, Phase } from "@/lib/v02-types";
 import { PhaseBadge } from "./PhaseBadge";
@@ -95,7 +96,7 @@ export function NodeDetailPanel({
       <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-600">{node.body}</p>
       {node.phase === "system" && (
         <p className="mt-3 rounded-lg bg-slate-50 p-3 text-sm leading-6 text-slate-600">
-          Systemは人の評価ではなく、再利用可能な運用知へ到達した状態を示します。
+          Systemは人の評価ではなく、再利用可能な運用知へ到達した状態を表します。
         </p>
       )}
 
@@ -112,6 +113,32 @@ export function NodeDetailPanel({
         <Info label="投稿日" value={formatDate(node.createdAt)} />
         <Info label="Feedback" value={`${feedbacks.length}`} />
       </dl>
+
+      <section className="mt-5 rounded-lg border border-blue-100 bg-blue-50 p-4">
+        <h3 className="flex items-center gap-2 text-sm font-bold text-blue-950">
+          <FileText className="h-4 w-4" />
+          Output
+        </h3>
+        {node.phase === "system" ? (
+          <>
+            <p className="mt-2 text-sm leading-6 text-blue-900">
+              このSystem Nodeを、マニュアル・手順書・引き継ぎ資料として使える形に整えます。
+            </p>
+            <Link
+              className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-800 active:scale-[0.99]"
+              href={`/output/${node.id}`}
+            >
+              <FileText className="h-4 w-4" />
+              Outputを作成
+            </Link>
+          </>
+        ) : (
+          <p className="mt-2 text-sm leading-6 text-blue-900">
+            OutputはSystem Nodeから作成できます。まずは気づきや実践をSystemまで育ててください。
+          </p>
+        )}
+      </section>
+
       <button
         className="mt-4 w-full rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700 transition hover:bg-rose-100 active:scale-[0.99]"
         onClick={onArchiveNode}
@@ -127,8 +154,7 @@ export function NodeDetailPanel({
           このNodeから育てる
         </h3>
         <p className="mt-1 text-sm leading-6 text-slate-500">
-          このNodeを起点に、新しいBranchやTrialを追加できます。SeedからBranchへ進めるだけでなく、すぐにTrialとして実践を記録することもできます。
-          Knowledge Forestでは、Phaseは評価ではなく、知識の状態を表します。
+          このNodeを起点に、新しいBranchやTrialを追加できます。Knowledge Forestでは、Phaseは評価ではなく、知識の状態を表します。
         </p>
         <div className="mt-4 grid grid-cols-2 gap-2">
           {orderedGrowthPhases.map((phase, index) => (
